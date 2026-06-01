@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { Badge } from '../components/Badge';
 import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
 
 export const Login = () => {
@@ -19,10 +18,10 @@ export const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!email) newErrors.email = 'Email address is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Please enter a valid email address';
+    if (!email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Enter a valid email';
     if (!password) newErrors.password = 'Password is required';
-    else if (password.length < 5) newErrors.password = 'Password must be at least 5 characters';
+    else if (password.length < 5) newErrors.password = 'Minimum 5 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -39,8 +38,6 @@ export const Login = () => {
   };
 
   const handleQuickLogin = (emailPreset, passPreset) => {
-    setEmail(emailPreset);
-    setPassword(passPreset);
     setErrors({});
     setLoading(true);
     setTimeout(() => {
@@ -51,16 +48,16 @@ export const Login = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 font-sans">
-      <div className="flex flex-col gap-1 text-center">
-        <h2 className="text-xl font-bold text-white tracking-tight">Portal Authentication</h2>
-        <p className="text-slate-400 text-xs">Sign in as Super Admin or Teacher.</p>
+    <div className="flex flex-col gap-6">
+      <div className="text-center">
+        <h2 className="text-lg font-bold text-gray-900">Sign in</h2>
+        <p className="text-sm text-gray-500 mt-1">Enter your credentials to access your portal</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label="Email Address" type="email" icon={Mail}
-          placeholder="admin@gmail.com" value={email}
+          placeholder="e.g. admin@gmail.com" value={email}
           onChange={(e) => setEmail(e.target.value)} error={errors.email} autoFocus
         />
         <Input
@@ -68,39 +65,46 @@ export const Login = () => {
           placeholder="••••••••" value={password}
           onChange={(e) => setPassword(e.target.value)} error={errors.password}
         />
-        <Button type="submit" variant="primary" loading={loading}
-          className="w-full mt-2 font-bold py-3 text-sm flex items-center justify-center gap-2">
-          <LogIn size={16} /> Sign In to Portal
+        <Button type="submit" variant="primary" loading={loading} className="w-full mt-1 gap-2">
+          <LogIn size={16} /> Sign In
         </Button>
       </form>
 
-      <div className="mt-4 pt-6 border-t border-slate-800/80 flex flex-col gap-3">
-        <span className="text-center text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-          Quick Access
-        </span>
+      <div className="pt-5 border-t border-gray-100">
+        <p className="text-xs font-medium text-gray-400 text-center mb-3">Demo Accounts</p>
         <div className="flex flex-col gap-2">
-          <button type="button" onClick={() => handleQuickLogin('admin@gmail.com', 'admin123')}
-            className="flex items-center justify-between p-2.5 rounded-xl bg-indigo-950/20 border border-indigo-900/30 hover:border-indigo-500/50 hover:bg-indigo-900/10 text-left transition-all duration-300 text-white cursor-pointer group">
-            <div className="flex flex-col">
-              <span className="text-xs font-extrabold flex items-center gap-1.5">
-                <Badge variant="indigo" className="text-[8px] px-1 py-0 border-none leading-none">Super Admin</Badge>
-                admin@gmail.com
-              </span>
-              <span className="text-[9px] text-slate-500 mt-0.5">Password: admin123</span>
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('admin@gmail.com', 'admin123')}
+            className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-150 cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+                <span className="text-[10px] font-black text-blue-600">SA</span>
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-semibold text-gray-800">Administrator</p>
+                <p className="text-[11px] text-gray-400">admin@gmail.com</p>
+              </div>
             </div>
-            <ArrowRight size={14} className="text-slate-500 group-hover:text-white transition-colors" />
+            <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
           </button>
 
-          <button type="button" onClick={() => handleQuickLogin('teacher@gmail.com', 'teacher123')}
-            className="flex items-center justify-between p-2.5 rounded-xl bg-indigo-950/20 border border-indigo-900/30 hover:border-indigo-500/50 hover:bg-indigo-900/10 text-left transition-all duration-300 text-white cursor-pointer group">
-            <div className="flex flex-col">
-              <span className="text-xs font-extrabold flex items-center gap-1.5">
-                <Badge variant="indigo" className="text-[8px] px-1 py-0 border-none leading-none">Teacher</Badge>
-                teacher@gmail.com
-              </span>
-              <span className="text-[9px] text-slate-500 mt-0.5">Password: teacher123</span>
+          <button
+            type="button"
+            onClick={() => handleQuickLogin('teacher@gmail.com', 'teacher123')}
+            className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-150 cursor-pointer group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
+                <span className="text-[10px] font-black text-blue-600">TC</span>
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-semibold text-gray-800">Teacher</p>
+                <p className="text-[11px] text-gray-400">teacher@gmail.com</p>
+              </div>
             </div>
-            <ArrowRight size={14} className="text-slate-500 group-hover:text-white transition-colors" />
+            <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
           </button>
         </div>
       </div>

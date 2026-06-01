@@ -50,7 +50,7 @@ export const MultiSelect = ({
   return (
     <div className={cn('flex flex-col gap-1.5 w-full relative', className)} ref={containerRef}>
       {label && (
-        <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide">
+        <span className="text-xs font-medium text-gray-600 tracking-wide">
           {label}
         </span>
       )}
@@ -59,10 +59,10 @@ export const MultiSelect = ({
       <div
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'w-full min-h-[42px] px-3.5 py-1.5 rounded-xl border bg-white dark:bg-slate-900/50 flex flex-wrap items-center gap-1.5 cursor-pointer transition-all duration-300 outline-none focus-within:ring-2 focus-within:ring-indigo-500/20 text-sm',
+          'w-full min-h-[42px] px-3.5 py-1.5 rounded-xl border bg-white flex flex-wrap items-center gap-1.5 cursor-pointer transition-all duration-300 outline-none focus-within:ring-2 focus-within:ring-blue-500/20 text-sm',
           error
-            ? 'border-rose-500 focus-within:ring-rose-500/20'
-            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+            ? 'border-red-400 focus-within:ring-red-500/20'
+            : 'border-gray-200 hover:border-gray-300'
         )}
       >
         {selectedValues.length === 0 ? (
@@ -74,14 +74,14 @@ export const MultiSelect = ({
               return (
                 <Badge
                   key={val}
-                  variant="indigo"
+                  variant="blue"
                   className="text-[9px] lowercase font-extrabold flex items-center gap-1 normal-case scale-95"
                 >
                   {opt ? opt.label : val}
                   <button
                     type="button"
                     onClick={(e) => handleRemoveOption(val, e)}
-                    className="p-0.5 rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 transition-colors flex-shrink-0 cursor-pointer"
+                    className="p-0.5 rounded-full hover:bg-blue-200 text-blue-600 transition-colors flex-shrink-0 cursor-pointer"
                   >
                     <X size={10} />
                   </button>
@@ -110,17 +110,17 @@ export const MultiSelect = ({
 
       {/* Floating Options Panel */}
       {isOpen && (
-        <div className="absolute top-[100%] left-0 w-full mt-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl overflow-hidden z-40 transform transition-all duration-300 animate-in fade-in slide-in-from-top-2 duration-150 flex flex-col max-h-60">
+        <div className="absolute top-[100%] left-0 w-full mt-2.5 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden z-40 flex flex-col max-h-60">
           
           {/* Inner Search Box */}
-          <div className="p-2 border-b border-slate-50 dark:border-slate-800 flex items-center gap-2">
+          <div className="p-2 border-b border-gray-100 flex items-center gap-2">
             <Search size={14} className="text-slate-400 flex-shrink-0 ml-1.5" />
             <input
               type="text"
               placeholder="Filter list options..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-transparent border-none text-xs outline-none text-slate-800 dark:text-slate-100 pr-2"
+              className="w-full bg-transparent border-none text-xs outline-none text-gray-800 pr-2"
               onClick={(e) => e.stopPropagation()} // Stop click-propagation opening/closing panel
             />
           </div>
@@ -142,12 +142,12 @@ export const MultiSelect = ({
                     className={cn(
                       'w-full text-left px-4 py-2.5 text-xs font-semibold transition-colors duration-150 flex items-center justify-between gap-3 cursor-pointer',
                       isSelected
-                        ? 'bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-600 hover:bg-gray-50'
                     )}
                   >
                     <span>{opt.label}</span>
-                    {isSelected && <Check size={14} className="text-indigo-600 dark:text-indigo-400 flex-shrink-0" />}
+                    {isSelected && <Check size={14} className="text-blue-600 flex-shrink-0" />}
                   </button>
                 );
               })

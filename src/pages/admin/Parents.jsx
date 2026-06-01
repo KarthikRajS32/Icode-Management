@@ -167,29 +167,29 @@ export const AdminParents = () => {
   const columns = [
     {
       key: 'name',
-      label: 'Parent / Sponsor details',
+      label: 'Parent',
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar name={row.name} size="sm" />
           <div className="flex flex-col">
-            <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{row.name}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">{row.email}</span>
+            <span className="font-bold text-gray-800 text-sm">{row.name}</span>
+            <span className="text-[10px] text-gray-400 font-semibold">{row.email}</span>
           </div>
         </div>
       )
     },
     {
       key: 'child',
-      label: 'Enrolled Child',
+      label: 'Child',
       render: (row) => {
         const child = students.find(s => s.parentId === row.id);
         const cls = classrooms.find(c => c.id === child?.classroomId);
         return (
           <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200">
+            <span className="text-xs font-extrabold text-gray-700">
               {child?.name || 'N/A'}
             </span>
-            <span className="text-[10px] text-slate-400 font-semibold uppercase">
+            <span className="text-[10px] text-gray-400 font-semibold uppercase">
               Class: {cls ? `${cls.name}-${cls.section}` : 'Unassigned'}
             </span>
           </div>
@@ -198,23 +198,23 @@ export const AdminParents = () => {
     },
     {
       key: 'phone',
-      label: 'Phone Contact',
+      label: 'Phone',
       render: (row) => (
-        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-semibold text-gray-500">
           {row.phone}
         </span>
       )
     },
     {
       key: 'actions',
-      label: 'Actions Block',
+      label: 'Actions',
       render: (row) => (
         <div className="flex items-center gap-1.5">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => handleOpenView(row)}
-            className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-gray-50"
           >
             <Eye size={15} />
           </Button>
@@ -222,7 +222,7 @@ export const AdminParents = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleOpenEdit(row)}
-            className="p-2 rounded-xl text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 hover:bg-gray-50"
           >
             <Edit2 size={15} />
           </Button>
@@ -230,7 +230,7 @@ export const AdminParents = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleOpenDelete(row.id)}
-            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-gray-50"
           >
             <Trash2 size={15} />
           </Button>
@@ -240,15 +240,15 @@ export const AdminParents = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto">
+    <div className="flex flex-col gap-6 w-full">
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-            Family Directory
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">
+            Parents & Families
           </h1>
-          <p className="text-xs text-slate-400">
-            Configure primary sponsors, view residential profiles, and enroll children into classrooms.
+          <p className="text-xs text-gray-400">
+            Manage parent accounts, view family profiles, and enroll children into classrooms.
           </p>
         </div>
 
@@ -257,18 +257,18 @@ export const AdminParents = () => {
           onClick={handleOpenCreate}
           className="rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
         >
-          <Plus size={16} /> Register Family Account
+          <Plus size={16} /> Add Parent
         </Button>
       </div>
 
       {/* Main Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-xs mt-2">
+      <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs mt-2">
         <Table
           columns={columns}
           data={parents}
           searchPlaceholder="Search parents by name..."
           searchKey="name"
-          emptyMessage="No parent accounts found in database."
+          emptyMessage="No parents registered yet."
           pageSize={6}
         />
       </div>
@@ -279,21 +279,21 @@ export const AdminParents = () => {
       <Dialog
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingParent ? `Edit Family: ${editingParent.name}` : 'Register New Family Account'}
+        title={editingParent ? `Edit Parent: ${editingParent.name}` : 'Add New Parent'}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           
           {/* Section 1: Sponsor Information */}
           <div className="flex flex-col gap-4">
-            <h3 className="text-xs uppercase font-extrabold text-indigo-500 tracking-wider">
-              1. Sponsor (Parent) Information
+            <h3 className="text-xs uppercase font-extrabold text-blue-500 tracking-wider">
+              Parent Information
             </h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="Parent / Sponsor Name"
-                placeholder="John Doe Senior"
+                label="Parent Name"
+                placeholder="e.g. John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 error={formErrors.name}
@@ -301,7 +301,7 @@ export const AdminParents = () => {
               <Input
                 label="Email Address"
                 type="email"
-                placeholder="j.doe@gmail.com"
+                placeholder="e.g. john.doe@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 error={formErrors.email}
@@ -311,15 +311,15 @@ export const AdminParents = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="Primary Phone Contact"
-                placeholder="+1 (555) 011-2233"
+                label="Phone Number"
+                placeholder="e.g. +1 (555) 011-2233"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 error={formErrors.phone}
               />
               {!editingParent ? (
                 <Input
-                  label="Portal Secret Password"
+                  label="Password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
@@ -327,15 +327,15 @@ export const AdminParents = () => {
                   error={formErrors.password}
                 />
               ) : (
-                <div className="flex items-end text-xs text-slate-400 p-3 bg-slate-50 dark:bg-slate-800/30 rounded-xl">
-                  🔒 Login credentials active. Change via system admin dashboard.
+                <div className="flex items-end text-xs text-gray-400 p-3 bg-gray-50 rounded-xl">
+                  🔒 Password is locked. Contact the system admin to reset it.
                 </div>
               )}
             </div>
 
             <Input
-              label="Residential Home Address"
-              placeholder="742 Evergreen Terrace, Springfield"
+              label="Home Address"
+              placeholder="e.g. 742 Evergreen Terrace, Springfield"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               error={formErrors.address}
@@ -343,21 +343,21 @@ export const AdminParents = () => {
           </div>
 
           {/* Section 2: Student Information */}
-          <div className="flex flex-col gap-4 pt-6 border-t border-slate-100 dark:border-slate-800/60">
+          <div className="flex flex-col gap-4 pt-6 border-t border-gray-100">
             <h3 className="text-xs uppercase font-extrabold text-emerald-500 tracking-wider">
-              2. Student (Child) Information
+              Student Information
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
-                label="Child Full Name"
-                placeholder="Alex Doe"
+                label="Child's Full Name"
+                placeholder="e.g. Alex Doe"
                 value={childName}
                 onChange={(e) => setChildName(e.target.value)}
                 error={formErrors.childName}
               />
               <Input
-                label="Child Age (Years)"
+                label="Child's Age"
                 placeholder="10"
                 type="number"
                 value={childAge}
@@ -369,7 +369,7 @@ export const AdminParents = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Gender selector */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide">
+                <label className="text-xs font-semibold text-gray-600 tracking-wide">
                   Child Gender
                 </label>
                 <div className="flex gap-2">
@@ -380,8 +380,8 @@ export const AdminParents = () => {
                       onClick={() => setChildGender(g)}
                       className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200 cursor-pointer ${
                         childGender === g
-                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400'
-                          : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                          ? 'border-blue-500 bg-blue-50 text-blue-600'
+                          : 'border-gray-200 hover:bg-gray-50'
                       }`}
                     >
                       {g}
@@ -392,15 +392,15 @@ export const AdminParents = () => {
 
               {/* Classroom picker */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide">
-                  Enroll in Classroom <span className="text-slate-400 font-normal">(optional)</span>
+                <label className="text-xs font-semibold text-gray-600 tracking-wide">
+                  Assign to Classroom <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <select
                   value={classroomId}
                   onChange={(e) => setClassroomId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 outline-none text-sm text-slate-700 dark:text-slate-200 focus:border-indigo-500 transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none text-sm text-gray-700 focus:border-blue-500 transition-colors"
                 >
-                  <option value="">-- No Classroom Yet --</option>
+                  <option value="">-- Not Assigned --</option>
                   {classrooms.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}-{c.section} (Capacity: {c.capacity})
@@ -416,7 +416,7 @@ export const AdminParents = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary" className="rounded-xl font-bold">
-              {editingParent ? 'Save family files' : 'Register Family Account'}
+              {editingParent ? 'Save Changes' : 'Add Parent'}
             </Button>
           </div>
         </form>
@@ -428,7 +428,7 @@ export const AdminParents = () => {
       <Dialog
         isOpen={viewOpen}
         onClose={() => setViewOpen(false)}
-        title="Family Profile Card"
+        title="Parent Profile"
         size="md"
       >
         {viewingParent && (
@@ -436,54 +436,54 @@ export const AdminParents = () => {
             <div className="flex items-center gap-4">
               <Avatar name={viewingParent.name} size="lg" />
               <div className="flex flex-col gap-0.5">
-                <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-base leading-tight">
+                <h3 className="font-extrabold text-gray-800 text-base leading-tight">
                   {viewingParent.name}
                 </h3>
-                <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
-                  Primary Family Sponsor
+                <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+                  Parent / Guardian
                 </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
               {/* Left Column: Contact details */}
               <div className="flex flex-col gap-3 text-sm">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
                   Contact Information
                 </span>
                 <div className="flex items-center gap-2.5">
-                  <Mail size={15} className="text-slate-400 flex-shrink-0" />
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold truncate">{viewingParent.email}</span>
+                  <Mail size={15} className="text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-600 font-semibold truncate">{viewingParent.email}</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <Phone size={15} className="text-slate-400 flex-shrink-0" />
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{viewingParent.phone}</span>
+                  <Phone size={15} className="text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-600 font-semibold">{viewingParent.phone}</span>
                 </div>
                 <div className="flex items-start gap-2.5">
-                  <MapPin size={15} className="text-slate-400 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold leading-normal">
+                  <MapPin size={15} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                  <span className="text-gray-600 font-semibold leading-normal">
                     {viewingParent.address}
                   </span>
                 </div>
               </div>
 
               {/* Right Column: Child details */}
-              <div className="flex flex-col gap-3 text-sm p-4 bg-slate-50 dark:bg-slate-800/30 rounded-2xl border border-slate-100/50 dark:border-slate-800/30">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
-                  <GraduationCap size={14} className="text-emerald-500" /> Enrolled Child Profile
+              <div className="flex flex-col gap-3 text-sm p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider flex items-center gap-1.5">
+                  <GraduationCap size={14} className="text-emerald-500" /> Child Details
                 </span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs text-slate-400">Student Name</span>
-                  <span className="font-extrabold text-slate-800 dark:text-slate-200">{viewingParent.childName}</span>
+                  <span className="text-xs text-gray-400">Student Name</span>
+                  <span className="font-extrabold text-gray-800">{viewingParent.childName}</span>
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs text-slate-400">Age & Gender</span>
-                  <span className="font-bold text-slate-700 dark:text-slate-300">
+                  <span className="text-xs text-gray-400">Age & Gender</span>
+                  <span className="font-bold text-gray-700">
                     {viewingParent.childAge} Years ({viewingParent.childGender})
                   </span>
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-xs text-slate-400">Assigned Classroom</span>
+                  <span className="text-xs text-gray-400">Assigned Classroom</span>
                   <span className="font-extrabold text-emerald-600">{viewingParent.classroomName}</span>
                 </div>
               </div>
@@ -494,7 +494,7 @@ export const AdminParents = () => {
               onClick={() => setViewOpen(false)}
               className="w-full mt-4 rounded-xl font-bold"
             >
-              Close Card
+              Close
             </Button>
           </div>
         )}
@@ -507,9 +507,9 @@ export const AdminParents = () => {
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Remove Family Records?"
-        message="Are you sure you want to delete this family account? Deactivating this account will delete the parent profile, remove their child student file from classrooms, erase daily activities timelines, and freeze the portal login."
-        confirmText="Confirm Delete"
+        title="Remove Parent?"
+        message="Are you sure you want to remove this parent? This will also delete their child's enrollment record and deactivate their portal access."
+        confirmText="Delete"
       />
     </div>
   );

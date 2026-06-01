@@ -20,28 +20,28 @@ export const TeacherClassrooms = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto font-sans">
+    <div className="flex flex-col gap-6 w-full font-sans">
       
       {/* Header Block */}
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-          My Classroom Assignments
+        <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">
+          My Classrooms
         </h1>
-        <p className="text-xs text-slate-400">
-          Open assigned classes, check daily student lists, and publish student development updates.
+        <p className="text-xs text-gray-400">
+          View your assigned classrooms, check student rosters, and log daily activities.
         </p>
       </div>
 
       {/* Classroom grids */}
       {assignedClassrooms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl mt-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 text-slate-400 rounded-full">
+        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white border border-gray-100 rounded-3xl mt-4">
+          <div className="p-4 bg-gray-50 text-gray-400 rounded-full">
             <Inbox size={32} />
           </div>
           <div>
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-slate-200">No Classroom Assigned</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm leading-relaxed">
-              You are not currently assigned to any active classrooms. Please contact the administrator to allocate classes.
+            <h3 className="font-extrabold text-sm text-gray-700">No Classrooms Assigned</h3>
+            <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">
+              You have no classrooms assigned yet. Contact the administrator to get classrooms allocated to you.
             </p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export const TeacherClassrooms = () => {
               <Card
                 key={cls.id}
                 title={`${cls.name} - ${cls.section}`}
-                subtitle={`Seating Limit: ${cls.capacity}`}
+                subtitle={`Capacity: ${cls.capacity} seats`}
                 icon={School}
                 glow
                 glowColor={fillPercent > 90 ? 'rose' : fillPercent > 70 ? 'amber' : 'emerald'}
@@ -66,13 +66,13 @@ export const TeacherClassrooms = () => {
                 <div className="flex flex-col gap-4">
                   {/* Classroom statistics */}
                   <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 text-emerald-500">
+                    <div className="p-1.5 rounded-lg bg-emerald-50 text-emerald-500">
                       <GraduationCap size={15} />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase leading-none">Class Roster size</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-0.5">
-                        {enrolledCount} Active Students
+                      <span className="text-[10px] text-gray-400 font-semibold uppercase leading-none">Enrolled Students</span>
+                      <span className="text-xs font-bold text-gray-700 mt-0.5">
+                        {enrolledCount} students
                       </span>
                     </div>
                   </div>
@@ -80,8 +80,8 @@ export const TeacherClassrooms = () => {
                   {/* Seat progression */}
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between text-[10px] font-bold">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Users size={12} /> Seats load
+                      <span className="text-gray-400 flex items-center gap-1">
+                        <Users size={12} /> Capacity
                       </span>
                       <span className={`${
                         fillPercent > 90
@@ -90,11 +90,11 @@ export const TeacherClassrooms = () => {
                           ? 'text-orange-500'
                           : 'text-emerald-500'
                       }`}>
-                        {fillPercent}% Filled
+                        {fillPercent}% filled
                       </span>
                     </div>
                     
-                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         style={{ width: `${fillPercent}%` }}
                         className={`h-full rounded-full transition-all duration-300 ${
@@ -102,16 +102,16 @@ export const TeacherClassrooms = () => {
                             ? 'bg-rose-600'
                             : fillPercent > 70
                             ? 'bg-amber-500'
-                            : 'bg-indigo-600'
+                            : 'bg-blue-600'
                         }`}
                       />
                     </div>
                   </div>
 
                   {/* Interactive card footer link */}
-                  <div className="flex items-center justify-between pt-4.5 border-t border-slate-50 dark:border-slate-800/60 text-xs font-semibold text-slate-400 group-hover:text-emerald-500 transition-colors mt-2">
+                  <div className="flex items-center justify-between pt-4.5 border-t border-gray-100 text-xs font-semibold text-gray-400 group-hover:text-blue-500 transition-colors mt-2">
                     <span className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider">
-                      Open Activities Dashboard
+                      Log Activities
                     </span>
                     <ArrowRight size={13} className="transform group-hover:translate-x-1 transition-transform" />
                   </div>

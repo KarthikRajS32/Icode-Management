@@ -1,61 +1,91 @@
-import React from 'react';
 import { cn } from '../utils/cn';
 
-/**
- * Premium Card with dynamic glow highlights
- */
+const glowColors = {
+  indigo:  'text-blue-500 bg-blue-50',
+  emerald: 'text-emerald-500 bg-emerald-50',
+  rose:    'text-rose-500 bg-rose-50',
+  amber:   'text-amber-500 bg-amber-50',
+  blue:    'text-blue-500 bg-blue-50',
+};
+
 export const Card = ({
-  children,
-  title,
-  subtitle,
-  icon: Icon,
-  className = '',
-  headerClassName = '',
-  bodyClassName = '',
-  action,
-  glow = false,
-  glowColor = 'indigo', // 'indigo' | 'emerald' | 'rose' | 'amber'
+  children, title, subtitle, icon: Icon, className = '',
+  headerClassName = '', bodyClassName = '', action,
+  glow = false, glowColor = 'blue',
   ...props
 }) => {
-  const glowColors = {
-    indigo: 'hover:border-indigo-400 dark:hover:border-indigo-600/80 hover:shadow-md',
-    emerald: 'hover:border-emerald-400 dark:hover:border-emerald-600/80 hover:shadow-md',
-    rose: 'hover:border-rose-400 dark:hover:border-rose-600/80 hover:shadow-md',
-    amber: 'hover:border-amber-400 dark:hover:border-amber-600/80 hover:shadow-md',
-  };
+  if (glow) {
+    const iconStyle = glowColors[glowColor] || glowColors.blue;
+    // Detect if this is a numeric metric card (title is a plain number string)
+    const isMetric = title && /^\d+$/.test(String(title).trim());
 
+    return (
+      <div
+        className={cn(
+          'bg-white border border-gray-100 rounded-3xl p-6 shadow-xs flex flex-col',
+          className
+        )}
+        {...props}
+      >
+        {/* Header row: icon + optional action */}
+        <div className="flex items-start justify-between mb-4">
+          {Icon && (
+            <div className={cn('w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0', iconStyle)}>
+              <Icon size={20} />
+            </div>
+          )}
+          {action && <div className="flex-shrink-0">{action}</div>}
+        </div>
+
+        {/* Title & subtitle */}
+        <div className="flex flex-col gap-1 mb-2">
+          {title && (
+            isMetric ? (
+              <p className="text-3xl font-black text-gray-800 leading-none tracking-tight">
+                {title}
+              </p>
+            ) : (
+              <p className="text-base font-extrabold text-gray-800 leading-snug">
+                {title}
+              </p>
+            )
+          )}
+          {subtitle && (
+            <p className="text-xs text-gray-400 font-medium">{subtitle}</p>
+          )}
+        </div>
+
+        {children}
+      </div>
+    );
+  }
+
+  // Default card (non-glow)
   return (
     <div
       className={cn(
-        'relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 overflow-hidden flex flex-col',
-        glow && glowColors[glowColor],
+        'bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col overflow-hidden',
         className
       )}
       {...props}
     >
       {(title || subtitle || Icon || action) && (
-        <div className={cn('px-6 py-5 border-b border-slate-50 dark:border-slate-800/50 flex items-center justify-between gap-4', headerClassName)}>
+        <div className={cn('px-5 py-4 border-b border-gray-50 flex items-center justify-between gap-4', headerClassName)}>
           <div className="flex items-center gap-3">
             {Icon && (
-              <div className={cn(
-                'p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
-                glow && glowColor === 'indigo' && 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/30',
-                glow && glowColor === 'emerald' && 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/30',
-                glow && glowColor === 'rose' && 'text-rose-500 bg-rose-50 dark:bg-rose-950/30',
-                glow && glowColor === 'amber' && 'text-amber-500 bg-amber-50 dark:bg-amber-950/30',
-              )}>
-                <Icon size={20} />
+              <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 flex-shrink-0">
+                <Icon size={18} />
               </div>
             )}
             <div>
-              {title && <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base leading-tight">{title}</h3>}
-              {subtitle && <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{subtitle}</p>}
+              {title && <p className="font-semibold text-gray-900 text-sm leading-tight">{title}</p>}
+              {subtitle && <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>}
             </div>
           </div>
           {action && <div className="flex-shrink-0">{action}</div>}
         </div>
       )}
-      <div className={cn('p-6 flex-grow flex flex-col justify-between', bodyClassName)}>
+      <div className={cn('p-5 flex-grow', bodyClassName)}>
         {children}
       </div>
     </div>

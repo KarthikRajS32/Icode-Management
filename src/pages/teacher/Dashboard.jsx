@@ -44,7 +44,7 @@ export const TeacherDashboard = () => {
   const readingPct = Math.round((readingAct / totalActivities) * 100);
 
   return (
-    <div className="flex flex-col gap-8 font-sans max-w-7xl mx-auto">
+    <div className="flex flex-col gap-8 font-sans w-full">
       
       {/* Dynamic Welcome Jumbotron */}
       <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
@@ -53,13 +53,13 @@ export const TeacherDashboard = () => {
         
         <div className="flex flex-col gap-2 relative z-10 text-center md:text-left">
           <Badge variant="emerald" className="text-[9px] w-max mx-auto md:mx-0">
-            Instructor Portal Active
+            Active
           </Badge>
           <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Welcome Back, {currentUser?.name || 'Faculty Member'}!
+            Welcome back, {currentUser?.name || 'Teacher'}!
           </h1>
           <p className="text-slate-400 text-xs md:text-sm max-w-md">
-            Review your assigned classroom benches, check on student logs, and upload today's activities.
+            Review your assigned classrooms, monitor student progress, and log today's activities.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export const TeacherDashboard = () => {
           onClick={() => navigate('/teacher/activities')}
           className="relative z-10 rounded-xl flex items-center gap-2 font-bold"
         >
-          <Plus size={16} /> Log Daily Activity
+          <Plus size={16} /> Log Activity
         </Button>
       </div>
 
@@ -76,31 +76,31 @@ export const TeacherDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Card
           title={String(assignedClassrooms.length)}
-          subtitle="Assigned Classrooms"
+          subtitle="My Classrooms"
           icon={School}
           glow
           glowColor="emerald"
           className="cursor-pointer"
           onClick={() => navigate('/teacher/classrooms')}
         >
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mt-4">
-            <span>Open Class Bench</span>
+          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
+            <span>View Classrooms</span>
             <ArrowRight size={14} className="text-emerald-500" />
           </div>
         </Card>
 
         <Card
           title={String(totalStudents)}
-          subtitle="Total Active Students"
+          subtitle="Students in My Classes"
           icon={Users}
           glow
-          glowColor="indigo"
+          glowColor="blue"
           className="cursor-pointer"
           onClick={() => navigate('/teacher/classrooms')}
         >
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mt-4">
-            <span>Roster Directory</span>
-            <ArrowRight size={14} className="text-indigo-500" />
+          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
+            <span>View Students</span>
+            <ArrowRight size={14} className="text-blue-500" />
           </div>
         </Card>
 
@@ -113,8 +113,8 @@ export const TeacherDashboard = () => {
           className="cursor-pointer"
           onClick={() => navigate('/teacher/activities')}
         >
-          <div className="flex items-center justify-between text-xs text-slate-400 font-semibold mt-4">
-            <span>Add Student Activity</span>
+          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
+            <span>Log Activity</span>
             <ArrowRight size={14} className="text-rose-500" />
           </div>
         </Card>
@@ -124,20 +124,20 @@ export const TeacherDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Custom Progress bar listing for logged activities */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-xs lg:col-span-2 flex flex-col justify-between">
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs lg:col-span-2 flex flex-col justify-between">
           <div className="flex flex-col gap-0.5 mb-6">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm">Classroom Activity Log Focus</h3>
-            <p className="text-[10px] text-slate-400">Distribution analysis of logging categories registered.</p>
+            <h3 className="font-extrabold text-gray-800 text-sm">Activity Category Breakdown</h3>
+            <p className="text-[10px] text-gray-400">Distribution of activity types you have logged across all students.</p>
           </div>
 
           <div className="flex flex-col gap-4.5 flex-grow justify-center">
             {/* Math */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-600 dark:text-slate-400">Mathematics & Logic</span>
-                <span>{mathAct} logs ({mathPct}%)</span>
+                <span className="text-gray-600">Mathematics & Logic</span>
+                <span>{mathAct} {mathAct === 1 ? 'log' : 'logs'} ({mathPct}%)</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
                 <div style={{ width: `${mathPct}%` }} className="h-full rounded-full bg-amber-500 shadow-sm" />
               </div>
             </div>
@@ -145,10 +145,10 @@ export const TeacherDashboard = () => {
             {/* Science */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-600 dark:text-slate-400">Science & Lab Experiments</span>
-                <span>{scienceAct} logs ({sciencePct}%)</span>
+                <span className="text-gray-600">Science & Lab Experiments</span>
+                <span>{scienceAct} {scienceAct === 1 ? 'log' : 'logs'} ({sciencePct}%)</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
                 <div style={{ width: `${sciencePct}%` }} className="h-full rounded-full bg-emerald-600 shadow-sm" />
               </div>
             </div>
@@ -156,10 +156,10 @@ export const TeacherDashboard = () => {
             {/* Art */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-600 dark:text-slate-400">Art & Creative expression</span>
-                <span>{artAct} logs ({artPct}%)</span>
+                <span className="text-gray-600">Art & Creative Expression</span>
+                <span>{artAct} {artAct === 1 ? 'log' : 'logs'} ({artPct}%)</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
                 <div style={{ width: `${artPct}%` }} className="h-full rounded-full bg-pink-500 shadow-sm" />
               </div>
             </div>
@@ -167,10 +167,10 @@ export const TeacherDashboard = () => {
             {/* Reading */}
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-600 dark:text-slate-400">Reading & Literacy</span>
-                <span>{readingAct} logs ({readingPct}%)</span>
+                <span className="text-gray-600">Reading & Literacy</span>
+                <span>{readingAct} {readingAct === 1 ? 'log' : 'logs'} ({readingPct}%)</span>
               </div>
-              <div className="w-full h-2.5 bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
                 <div style={{ width: `${readingPct}%` }} className="h-full rounded-full bg-blue-600 shadow-sm" />
               </div>
             </div>
@@ -178,19 +178,19 @@ export const TeacherDashboard = () => {
         </div>
 
         {/* Recent Teacher logs summary timeline */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
           <div className="flex flex-col gap-1 mb-4">
-            <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm">Active Feed logs</h3>
-            <p className="text-[11px] text-slate-400">Your recent logged updates.</p>
+            <h3 className="font-extrabold text-gray-800 text-sm">Recent Activity Logs</h3>
+            <p className="text-[11px] text-gray-400">Your most recently submitted student updates.</p>
           </div>
 
           <div className="flex-grow overflow-y-auto flex flex-col gap-3.5 max-h-[220px]">
             {teacherActivities.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center gap-2 h-full text-slate-400 py-6">
-                <Activity size={22} className="text-slate-300 dark:text-slate-600" />
-                <p className="text-[10px] font-bold">Feed is empty</p>
-                <p className="text-[9px] text-slate-400 max-w-[150px] leading-relaxed">
-                  Log daily activities inside classrooms to compile logs here.
+              <div className="flex flex-col items-center justify-center text-center gap-2 h-full text-gray-400 py-6">
+                <Activity size={22} className="text-gray-300" />
+                <p className="text-[10px] font-bold">No activities yet</p>
+                <p className="text-[9px] text-gray-400 max-w-[150px] leading-relaxed">
+                  Log student activities to see them appear here.
                 </p>
               </div>
             ) : (
@@ -199,16 +199,16 @@ export const TeacherDashboard = () => {
                 return (
                   <div
                     key={act.id}
-                    className="p-3 bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/50 rounded-xl flex flex-col gap-1"
+                    className="p-3 bg-gray-50 border border-gray-100 rounded-xl flex flex-col gap-1"
                   >
                     <div className="flex items-center justify-between text-[8px] font-bold">
-                      <span className="text-slate-400">Date: {formatDate(act.date)}</span>
-                      <span className="text-emerald-500">Student: {student?.name || 'N/A'}</span>
+                      <span className="text-gray-400">{formatDate(act.date)}</span>
+                      <span className="text-emerald-600 font-bold">{student?.name || 'N/A'}</span>
                     </div>
-                    <p className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 leading-tight">
+                    <p className="text-[10px] font-extrabold text-gray-700 leading-tight">
                       {act.title}
                     </p>
-                    <p className="text-[9px] text-slate-400 line-clamp-1 leading-normal">
+                    <p className="text-[9px] text-gray-400 line-clamp-1 leading-normal">
                       {act.description}
                     </p>
                   </div>

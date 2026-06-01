@@ -126,45 +126,45 @@ export const AdminTeachers = () => {
   const columns = [
     {
       key: 'name',
-      label: 'Instructor details',
+      label: 'Teacher',
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar name={row.name} size="sm" />
           <div className="flex flex-col">
-            <span className="font-bold text-slate-800 dark:text-slate-200 text-sm">{row.name}</span>
-            <span className="text-[10px] text-slate-400 font-semibold">{row.email}</span>
+            <span className="font-bold text-gray-800 text-sm">{row.name}</span>
+            <span className="text-[10px] text-gray-400 font-semibold">{row.email}</span>
           </div>
         </div>
       )
     },
     {
       key: 'subject',
-      label: 'Primary Subject',
+      label: 'Subject',
       render: (row) => (
-        <Badge variant="indigo" className="text-[9px] px-2 py-0.5 border-none">
+        <Badge variant="blue" className="text-[9px] px-2 py-0.5 border-none">
           {row.subject}
         </Badge>
       )
     },
     {
       key: 'phone',
-      label: 'Phone Number',
+      label: 'Phone',
       render: (row) => (
-        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-semibold text-gray-500">
           {row.phone}
         </span>
       )
     },
     {
       key: 'actions',
-      label: 'Actions Block',
+      label: 'Actions',
       render: (row) => (
         <div className="flex items-center gap-1.5">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => handleOpenView(row)}
-            className="p-2 rounded-xl text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-blue-600 hover:bg-gray-50 rounded-xl"
           >
             <Eye size={15} />
           </Button>
@@ -172,7 +172,7 @@ export const AdminTeachers = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleOpenEdit(row)}
-            className="p-2 rounded-xl text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 hover:bg-gray-50 rounded-xl"
           >
             <Edit2 size={15} />
           </Button>
@@ -180,7 +180,7 @@ export const AdminTeachers = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleOpenDelete(row.id)}
-            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+            className="p-2 rounded-xl text-gray-400 hover:text-rose-600 hover:bg-gray-50 rounded-xl"
           >
             <Trash2 size={15} />
           </Button>
@@ -190,15 +190,15 @@ export const AdminTeachers = () => {
   ];
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto">
+    <div className="flex flex-col gap-6 w-full">
       {/* Module Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-            Faculty Directory
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">
+            Faculty & Staff
           </h1>
-          <p className="text-xs text-slate-400">
-            Configure subjects, manage teaching assignments, and register academy instructors.
+          <p className="text-xs text-gray-400">
+            Manage teacher accounts, assign subjects, and register new instructors to the academy.
           </p>
         </div>
 
@@ -207,18 +207,18 @@ export const AdminTeachers = () => {
           onClick={handleOpenCreate}
           className="rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
         >
-          <Plus size={16} /> Register Instructor
+          <Plus size={16} /> Add Teacher
         </Button>
       </div>
 
       {/* Main Data table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-xs mt-2">
+      <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs mt-2">
         <Table
           columns={columns}
           data={teachers}
-          searchPlaceholder="Search instructors by name..."
+          searchPlaceholder="Search teachers by name..."
           searchKey="name"
-          emptyMessage="No teachers found in registry."
+          emptyMessage="No teachers registered yet."
           pageSize={6}
         />
       </div>
@@ -229,13 +229,13 @@ export const AdminTeachers = () => {
       <Dialog
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingTeacher ? `Edit Details: ${editingTeacher.name}` : 'Register New Instructor'}
+        title={editingTeacher ? `Edit Teacher: ${editingTeacher.name}` : 'Add New Teacher'}
         size="md"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <Input
-            label="Instructor Full Name"
-            placeholder="Sarah Connor"
+            label="Full Name"
+            placeholder="e.g. Sarah Johnson"
             value={name}
             onChange={(e) => setName(e.target.value)}
             error={formErrors.name}
@@ -245,15 +245,15 @@ export const AdminTeachers = () => {
             <Input
               label="Email Address"
               type="email"
-              placeholder="s.connor@icode.edu"
+              placeholder="e.g. sarah.j@icode.edu"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={formErrors.email}
               disabled={!!editingTeacher} // Keep email immutable for primary keys
             />
             <Input
-              label="Primary Phone Number"
-              placeholder="+1 (555) 019-2834"
+              label="Phone Number"
+              placeholder="e.g. +1 (555) 019-2834"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               error={formErrors.phone}
@@ -261,8 +261,8 @@ export const AdminTeachers = () => {
           </div>
 
           <Input
-            label="Primary Teaching Subject"
-            placeholder="Mathematics & Trigonometry"
+            label="Teaching Subject"
+            placeholder="e.g. Mathematics"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             error={formErrors.subject}
@@ -270,7 +270,7 @@ export const AdminTeachers = () => {
 
           {!editingTeacher && (
             <Input
-              label="Login Secret Password"
+              label="Password"
               type="password"
               placeholder="••••••••"
               value={password}
@@ -284,7 +284,7 @@ export const AdminTeachers = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary" className="rounded-xl font-bold">
-              {editingTeacher ? 'Save changes' : 'Register Instructor'}
+              {editingTeacher ? 'Save Changes' : 'Add Teacher'}
             </Button>
           </div>
         </form>
@@ -296,7 +296,7 @@ export const AdminTeachers = () => {
       <Dialog
         isOpen={viewOpen}
         onClose={() => setViewOpen(false)}
-        title="Instructor Profile Card"
+        title="Teacher Profile"
         size="sm"
       >
         {viewingTeacher && (
@@ -304,10 +304,10 @@ export const AdminTeachers = () => {
             <Avatar name={viewingTeacher.name} size="xl" />
             
             <div className="flex flex-col items-center gap-1.5 text-center">
-              <h3 className="font-extrabold text-slate-800 dark:text-slate-100 text-lg leading-tight">
+              <h3 className="font-extrabold text-gray-800 text-lg leading-tight">
                 {viewingTeacher.name}
               </h3>
-              <Badge variant="indigo" className="text-[9px] px-2 py-0.5 border-none">
+              <Badge variant="blue" className="text-[9px] px-2 py-0.5 border-none">
                 {viewingTeacher.subject}
               </Badge>
             </div>
@@ -315,24 +315,24 @@ export const AdminTeachers = () => {
             <div className="w-full flex flex-col gap-3 pt-4 border-t border-slate-100 dark:border-slate-800/80">
               <div className="flex items-center gap-3 text-sm">
                 <Mail size={16} className="text-slate-400 flex-shrink-0" />
-                <span className="text-slate-600 dark:text-slate-300 font-semibold truncate">
+                <span className="text-slate-600 font-semibold truncate">
                   {viewingTeacher.email}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <Phone size={16} className="text-slate-400 flex-shrink-0" />
-                <span className="text-slate-600 dark:text-slate-300 font-semibold">
+                <span className="text-slate-600 font-semibold">
                   {viewingTeacher.phone}
                 </span>
               </div>
               
               <div className="flex flex-col gap-1.5 mt-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  Assigned Classes
+                <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                  Assigned Classrooms
                 </span>
                 {viewingTeacher.assignedClasses?.length === 0 ? (
-                  <span className="text-xs text-slate-400 font-semibold">
-                    No active classrooms assigned.
+                  <span className="text-xs text-gray-400 font-semibold">
+                    No classrooms assigned.
                   </span>
                 ) : (
                   <div className="flex flex-wrap gap-1.5 mt-1">
@@ -351,7 +351,7 @@ export const AdminTeachers = () => {
               onClick={() => setViewOpen(false)}
               className="w-full mt-6 rounded-xl font-bold"
             >
-              Close Card
+              Close
             </Button>
           </div>
         )}
@@ -364,8 +364,8 @@ export const AdminTeachers = () => {
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Remove Instructor Profile?"
-        message="Are you sure you want to delete this instructor from the registry? Deactivating this account will unassign them from classrooms and freeze their portal credentials immediately."
+        title="Remove Teacher?"
+        message="Are you sure you want to remove this teacher? This will unassign them from all classrooms and deactivate their portal access."
         confirmText="Confirm Delete"
       />
     </div>

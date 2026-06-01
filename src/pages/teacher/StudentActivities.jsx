@@ -144,32 +144,32 @@ export const TeacherStudentActivities = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto font-sans">
+    <div className="flex flex-col gap-6 w-full font-sans">
       
       {/* Header Selector bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-white border border-gray-100 rounded-3xl shadow-xs">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-tight">
-            Daily Activities Logger
+          <h1 className="text-lg font-extrabold text-gray-800 leading-tight">
+            Daily Activity Log
           </h1>
-          <p className="text-[10px] text-slate-400">
-            Publish daily developments and trigger notifications directly to family portals.
+          <p className="text-[10px] text-gray-400">
+            Record student activities and send updates directly to parent accounts.
           </p>
         </div>
 
         {/* Classroom picker dropdown */}
         <div className="flex items-center gap-3">
-          <School size={16} className="text-slate-400" />
+          <School size={16} className="text-gray-400" />
           <select
             value={selectedClassroomId}
             onChange={(e) => {
               navigate(`/teacher/activities?classroomId=${e.target.value}`);
             }}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs font-semibold outline-none text-slate-700 dark:text-slate-200 focus:border-indigo-500 transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-xs font-semibold outline-none text-gray-700 focus:border-blue-500 transition-colors"
           >
             {assignedClassrooms.map((c) => (
               <option key={c.id} value={c.id}>
-                Class: {c.name}-{c.section}
+                Class: {c.name} {c.section}
               </option>
             ))}
           </select>
@@ -178,14 +178,14 @@ export const TeacherStudentActivities = () => {
 
       {/* Main split viewport layout */}
       {activeStudents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white dark:bg-slate-900 border rounded-3xl mt-2">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400">
+        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white border border-gray-100 rounded-3xl mt-2">
+          <div className="p-4 bg-gray-50 rounded-full text-gray-400">
             <User size={32} />
           </div>
           <div>
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-slate-200">No Enrolled Students</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm leading-relaxed">
-              Enrolled children will be displayed here. Please contact admin to enroll students in this class.
+            <h3 className="font-extrabold text-sm text-gray-700">No Students Enrolled</h3>
+            <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">
+              This classroom has no enrolled students. Contact the admin to enroll students.
             </p>
           </div>
         </div>
@@ -194,8 +194,8 @@ export const TeacherStudentActivities = () => {
           
           {/* Left Column: Student roster list */}
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-              Class Roster Selection
+            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+              Students
             </span>
             
             <div className="flex flex-col gap-2.5 max-h-[500px] overflow-y-auto">
@@ -209,27 +209,27 @@ export const TeacherStudentActivities = () => {
                     onClick={() => setSelectedStudentId(st.id)}
                     className={`p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-4 cursor-pointer select-none ${
                       isActive
-                        ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 shadow-md shadow-indigo-500/5'
-                        : 'border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 hover:border-slate-200 dark:hover:border-slate-700'
+                        ? 'border-blue-500 bg-blue-50 shadow-md shadow-blue-500/5'
+                        : 'border-gray-100 bg-white hover:border-gray-200'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Avatar name={st.name} size="sm" />
                       <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate">
+                        <span className="font-bold text-gray-800 text-xs truncate">
                           {st.name}
                         </span>
-                        <span className="text-[9px] text-slate-400 font-semibold uppercase mt-0.5">
-                          Age: {st.age} | {st.gender}
+                        <span className="text-[9px] text-gray-400 font-semibold uppercase mt-0.5">
+                          Age {st.age} · {st.gender}
                         </span>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Badge variant={isActive ? 'indigo' : 'slate'} className="text-[8px] px-1.5 py-0 border-none scale-90">
+                      <Badge variant={isActive ? 'blue' : 'slate'} className="text-[8px] px-1.5 py-0 border-none scale-90">
                         {studentActs} Log{studentActs !== 1 && 's'}
                       </Badge>
-                      <ChevronRight size={14} className={`text-slate-400 ${isActive ? 'text-indigo-500' : ''}`} />
+                      <ChevronRight size={14} className={`text-gray-400 ${isActive ? 'text-blue-500' : ''}`} />
                     </div>
                   </div>
                 );
@@ -240,18 +240,18 @@ export const TeacherStudentActivities = () => {
           {/* Right Column: Individual student daily timeline feed */}
           <div className="lg:col-span-2 flex flex-col gap-4">
             {activeStudent && (
-              <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-3xl p-6 shadow-xs flex flex-col gap-6">
+              <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs flex flex-col gap-6">
                 
                 {/* Timeline student header bar */}
-                <div className="flex items-center justify-between gap-4 pb-5 border-b border-slate-50 dark:border-slate-800/50">
+                <div className="flex items-center justify-between gap-4 pb-5 border-b border-gray-100">
                   <div className="flex items-center gap-3.5">
                     <Avatar name={activeStudent.name} size="md" />
                     <div className="flex flex-col">
-                      <h2 className="font-black text-slate-800 dark:text-slate-100 text-sm leading-tight">
+                      <h2 className="font-black text-gray-800 text-sm leading-tight">
                         {activeStudent.name}
                       </h2>
-                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
-                        Sponsor: <b className="text-slate-600 dark:text-slate-300 font-bold">{activeStudent.parentName}</b>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
+                        Parent: <b className="text-gray-600 font-bold">{activeStudent.parentName}</b>
                       </span>
                     </div>
                   </div>
@@ -262,26 +262,26 @@ export const TeacherStudentActivities = () => {
                     onClick={handleOpenModal}
                     className="rounded-xl font-bold flex items-center gap-1.5"
                   >
-                    <Plus size={14} /> Daily Update
+                    <Plus size={14} /> Add Activity
                   </Button>
                 </div>
 
                 {/* Timeline activities feed */}
                 <div className="flex flex-col gap-6">
                   {studentActivities.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center text-center gap-3 py-16 text-slate-400">
-                      <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400">
+                    <div className="flex flex-col items-center justify-center text-center gap-3 py-16 text-gray-400">
+                      <div className="p-3 bg-gray-50 rounded-full text-gray-400">
                         <ClipboardCheck size={24} />
                       </div>
                       <div>
-                        <p className="font-bold text-xs">No logged activities</p>
-                        <p className="text-[10px] text-slate-400 mt-1 max-w-[200px] leading-relaxed">
-                          Click "Daily Update" to publish developmental logs for this student.
+                        <p className="font-bold text-xs text-gray-600">No activities logged yet</p>
+                        <p className="text-[10px] text-gray-400 mt-1 max-w-[200px] leading-relaxed">
+                          Click "Add Activity" to start logging updates for this student.
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-8 relative before:content-[''] before:absolute before:left-5 before:top-2 before:bottom-2 before:w-[1.5px] before:bg-slate-100 dark:before:bg-slate-800/80">
+                    <div className="flex flex-col gap-8 relative before:content-[''] before:absolute before:left-5 before:top-2 before:bottom-2 before:w-[1.5px] before:bg-gray-100">
                       {studentActivities.map((act) => {
                         // Resolve preset photo URL or custom base64 file
                         const activePreset = ACTIVITY_PHOTO_PRESETS.find(p => p.id === act.photoPreset);
@@ -290,11 +290,11 @@ export const TeacherStudentActivities = () => {
                         return (
                           <div key={act.id} className="relative pl-12 group flex flex-col gap-4">
                             {/* Dot indicator */}
-                            <div className="absolute left-[15px] top-1 w-3.5 h-3.5 rounded-full border-[2.5px] border-indigo-500 bg-white dark:bg-slate-900 transition-colors shadow-sm" />
+                            <div className="absolute left-[15px] top-1 w-3.5 h-3.5 rounded-full border-[2.5px] border-blue-500 bg-white shadow-sm" />
                             
-                            <div className="p-5 rounded-2xl border border-slate-50 dark:border-slate-800/80 hover:border-slate-200 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-900/20 transition-all duration-300 flex flex-col sm:flex-row gap-5 items-start">
+                            <div className="p-5 rounded-2xl border border-gray-100 hover:border-gray-200 bg-white transition-all duration-300 flex flex-col sm:flex-row gap-5 items-start">
                               {/* Photo card attachment */}
-                              <div className="w-full sm:w-36 h-28 rounded-xl overflow-hidden flex-shrink-0 relative border border-slate-200/20 shadow-xs">
+                              <div className="w-full sm:w-36 h-28 rounded-xl overflow-hidden flex-shrink-0 relative border border-gray-100 shadow-xs">
                                 <img
                                   src={photoUrl}
                                   alt={act.title}
@@ -304,22 +304,22 @@ export const TeacherStudentActivities = () => {
 
                               <div className="flex-grow flex flex-col gap-1.5 min-w-0">
                                 <div className="flex items-center justify-between gap-2.5">
-                                  <h4 className="font-extrabold text-xs text-slate-800 dark:text-slate-100 leading-tight">
+                                  <h4 className="font-extrabold text-xs text-gray-800 leading-tight">
                                     {act.title}
                                   </h4>
                                   <button
                                     onClick={() => deleteActivity(act.id)}
-                                    className="text-[9px] font-bold text-slate-400 hover:text-rose-500 uppercase flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                                    className="text-[9px] font-bold text-gray-400 hover:text-rose-500 uppercase flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
                                   >
                                     Delete
                                   </button>
                                 </div>
                                 
-                                <span className="text-[9px] text-slate-400 font-bold flex items-center gap-1">
-                                  <Calendar size={10} /> Published: {formatDate(act.date)}
+                                <span className="text-[9px] text-gray-400 font-bold flex items-center gap-1">
+                                  <Calendar size={10} /> {formatDate(act.date)}
                                 </span>
                                 
-                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                                   {act.description}
                                 </p>
                               </div>
@@ -342,7 +342,7 @@ export const TeacherStudentActivities = () => {
       <Dialog
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={activeStudent ? `Log Update: ${activeStudent.name}` : 'Log Daily Update'}
+        title={activeStudent ? `Log Activity: ${activeStudent.name}` : 'Log Activity'}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -350,14 +350,14 @@ export const TeacherStudentActivities = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
             <Input
               label="Activity Title"
-              placeholder="E.g., Solar System Scale Model"
+              placeholder="e.g. Solar System Scale Model"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               error={formErrors.title}
               className="sm:col-span-2"
             />
             <Input
-              label="Activity Date"
+              label="Date"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
@@ -366,8 +366,8 @@ export const TeacherStudentActivities = () => {
           </div>
 
           <Input
-            label="Activity Highlights & Observations"
-            placeholder="E.g., Emily worked diligently today. She took charge of paint mixing, helped clean the lab tools, and demonstrated great sharing skills..."
+            label="Notes & Observations"
+            placeholder="e.g. Emily worked diligently today. She took charge of paint mixing, helped clean the lab tools, and demonstrated great sharing skills..."
             textarea
             rows={4}
             value={description}
@@ -377,15 +377,15 @@ export const TeacherStudentActivities = () => {
 
           {/* Picture Selector block */}
           <div className="flex flex-col gap-3.5">
-            <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-              Attach Activity Image
+            <label className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+              Activity Photo
             </label>
 
             {/* Custom file Drag/Drop and Preset options */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
               {/* Left Box: Custom Drag-drop upload */}
-              <div className="flex flex-col gap-2 p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/30 dark:bg-slate-900/30 text-center relative items-center justify-center min-h-[140px]">
+              <div className="flex flex-col gap-2 p-4 border border-dashed border-gray-200 rounded-2xl bg-gray-50 text-center relative items-center justify-center min-h-[140px]">
                 {customPhoto ? (
                   <div className="flex flex-col items-center gap-2">
                     <img src={customPhoto} alt="Preview" className="w-16 h-12 object-cover rounded-lg border" />
@@ -402,12 +402,12 @@ export const TeacherStudentActivities = () => {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <ImageIcon size={24} className="text-slate-400" />
+                    <ImageIcon size={24} className="text-gray-400" />
                     <div>
-                      <span className="text-[10px] text-slate-400 font-bold block">Drag & Drop Image here</span>
-                      <span className="text-[9px] text-slate-400 block mt-0.5">Supports PNG, JPG (Max 2MB)</span>
+                      <span className="text-[10px] text-gray-400 font-bold block">Drag & Drop Image here</span>
+                      <span className="text-[9px] text-gray-400 block mt-0.5">Supports PNG, JPG (Max 2MB)</span>
                     </div>
-                    <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-[10px] font-semibold text-slate-700 dark:text-slate-300 mt-1.5 cursor-pointer transition-colors duration-200">
+                    <label className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-xl text-[10px] font-semibold text-gray-700 mt-1.5 cursor-pointer transition-colors duration-200">
                       Upload Picture
                       <input
                         type="file"
@@ -425,7 +425,7 @@ export const TeacherStudentActivities = () => {
 
               {/* Right Box: Preset Quick Illustration Grids */}
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-bold text-slate-400">Or Select a Preset theme:</span>
+                <span className="text-[10px] font-bold text-gray-400">Or choose a preset:</span>
                 
                 <div className="grid grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-1">
                   {ACTIVITY_PHOTO_PRESETS.map((preset) => {
@@ -440,12 +440,12 @@ export const TeacherStudentActivities = () => {
                         }}
                         className={`p-2 rounded-xl text-left border text-[10px] font-semibold transition-all duration-200 flex items-center justify-between gap-2 cursor-pointer ${
                           isSelected
-                            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-600 dark:text-indigo-400'
-                            : 'border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400'
+                            ? 'border-blue-500 bg-blue-50 text-blue-600'
+                            : 'border-gray-100 hover:bg-gray-50 text-gray-600'
                         }`}
                       >
                         <span className="truncate">{preset.label}</span>
-                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0" />}
+                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />}
                       </button>
                     );
                   })}
@@ -455,12 +455,12 @@ export const TeacherStudentActivities = () => {
             </div>
           </div>
 
-          <div className="p-3.5 bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/60 rounded-2xl flex items-center gap-3.5 text-[10px] text-slate-400 leading-normal">
-            <Mail size={22} className="text-slate-400 flex-shrink-0" />
+          <div className="p-3.5 bg-gray-50 border border-gray-100 rounded-2xl flex items-center gap-3.5 text-[10px] text-gray-400 leading-normal">
+            <Mail size={22} className="text-gray-400 flex-shrink-0" />
             <div className="flex flex-col gap-0.5">
-              <span className="font-extrabold text-slate-500 uppercase tracking-wider">Dynamic Outbox dispatch</span>
+              <span className="font-extrabold text-gray-500 uppercase tracking-wider">Email Notification</span>
               <span>
-                Publishing this report will instantly send a mock daily summary update to parent <b>{activeStudent?.parentName}</b>'s outbox inbox.
+                Submitting this activity will send an email notification to <b>{activeStudent?.parentName}</b>.
               </span>
             </div>
           </div>
@@ -470,7 +470,7 @@ export const TeacherStudentActivities = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary" className="rounded-xl font-bold flex items-center gap-1.5">
-              Publish daily update
+              Submit Activity
             </Button>
           </div>
         </form>

@@ -22,12 +22,12 @@ export const Avatar = ({
   // Generate a deterministic solid color based on the name string length/charcode
   const getGradientColors = (str) => {
     const colors = [
-      'bg-indigo-600 text-white',
-      'bg-emerald-600 text-white',
       'bg-blue-600 text-white',
+      'bg-emerald-600 text-white',
+      'bg-blue-500 text-white',
       'bg-slate-600 text-white',
       'bg-rose-600 text-white',
-      'bg-sky-600 text-white',
+      'bg-teal-600 text-white',
     ];
     
     if (!str) return colors[0];

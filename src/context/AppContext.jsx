@@ -160,16 +160,94 @@ export const AppProvider = ({ children }) => {
   // --- Direct Student CRUD ---
   const addStudentDirect = (form) => {
     const studentId = `s-${Date.now()}`;
-    setStudents(prev => [...prev, { id: studentId, name: form.name.trim(), age: form.age, gender: form.gender, parentId: '', classroomId: form.classroomId, parentName: form.parentName.trim() }]);
+    const parentId = `p-${Date.now()}`;
+    const pEmail = `${form.parentName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
+    
+    const newParent = {
+      id: parentId,
+      name: form.parentName.trim(),
+      email: pEmail,
+      phone: 'Not Provided',
+      address: 'Not Provided',
+      childId: studentId
+    };
+
+    const newAccount = {
+      id: `u-${Date.now()}`,
+      email: pEmail,
+      password: 'parent123',
+      name: form.parentName.trim(),
+      role: 'parent',
+      associatedId: parentId
+    };
+
+    setParents(prev => [...prev, newParent]);
+    setAccounts(prev => [...prev, newAccount]);
+    setStudents(prev => [
+      ...prev,
+      {
+        id: studentId,
+        name: form.name.trim(),
+        age: form.age,
+        gender: form.gender,
+        parentId: parentId,
+        classroomId: form.classroomId,
+        parentName: form.parentName.trim()
+      }
+    ]);
     triggerToast(`Student "${form.name}" enrolled successfully.`, 'success');
   };
 
   const updateStudentDirect = (id, form) => {
-    setStudents(prev => prev.map(s => s.id === id ? { ...s, name: form.name, age: form.age, gender: form.gender, parentName: form.parentName, classroomId: form.classroomId } : s));
+    const student = students.find(s => s.id === id);
+    let assignedParentId = student?.parentId || '';
+
+    if (student) {
+      const pEmail = `${form.parentName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
+      if (student.parentId) {
+        setParents(prev => prev.map(p => p.id === student.parentId ? { ...p, name: form.parentName.trim(), email: pEmail } : p));
+        setAccounts(prev => prev.map(acc => acc.associatedId === student.parentId ? { ...acc, name: form.parentName.trim(), email: pEmail } : acc));
+      } else {
+        assignedParentId = `p-${Date.now()}`;
+        const newParent = {
+          id: assignedParentId,
+          name: form.parentName.trim(),
+          email: pEmail,
+          phone: 'Not Provided',
+          address: 'Not Provided',
+          childId: id
+        };
+        const newAccount = {
+          id: `u-${Date.now()}`,
+          email: pEmail,
+          password: 'parent123',
+          name: form.parentName.trim(),
+          role: 'parent',
+          associatedId: assignedParentId
+        };
+        setParents(prev => [...prev, newParent]);
+        setAccounts(prev => [...prev, newAccount]);
+      }
+    }
+
+    setStudents(prev => prev.map(s => s.id === id ? {
+      ...s,
+      name: form.name.trim(),
+      age: form.age,
+      gender: form.gender,
+      parentName: form.parentName.trim(),
+      classroomId: form.classroomId,
+      parentId: s.parentId || assignedParentId
+    } : s));
     triggerToast('Student record updated.', 'success');
   };
 
   const deleteStudentDirect = (id) => {
+    const student = students.find(s => s.id === id);
+    if (student?.parentId) {
+      setParents(prev => prev.filter(p => p.id !== student.parentId));
+      setAccounts(prev => prev.filter(acc => acc.associatedId !== student.parentId));
+    }
     setStudents(prev => prev.filter(s => s.id !== id));
     setActivities(prev => prev.filter(act => act.studentId !== id));
     triggerToast('Student de-enrolled.', 'info');

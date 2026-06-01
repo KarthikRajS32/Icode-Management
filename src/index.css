@@ -1,55 +1,20 @@
 @import "tailwindcss";
 
-/* ========================================================================= */
-/* ICODE PORTAL CUSTOM PREMIUM UTILITIES & RESETS */
-/* ========================================================================= */
-
 @layer base {
   body {
-    @apply antialiased text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 transition-colors duration-300;
+    @apply antialiased text-gray-800 bg-gray-50 font-sans;
   }
 }
 
-/* Slim Premium Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 9999px;
-  transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.5);
-}
-
-/* Chrome/Safari autocomplete dark mode overrides */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-textarea:-webkit-autofill:hover,
-textarea:-webkit-autofill:focus,
-select:-webkit-autofill,
-select:-webkit-autofill:hover,
-select:-webkit-autofill:focus {
-  -webkit-text-fill-color: currentColor !important;
-  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1e293b !important;
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset !important;
   transition: background-color 5000s ease-in-out 0s !important;
-}
-
-/* Glassmorphism utility helpers */
-.glass-panel {
-  @apply backdrop-blur-md bg-white/70 dark:bg-slate-900/70 border border-slate-200/50 dark:border-slate-800/50 shadow-xl;
-}
-
-.glass-panel-dark {
-  @apply backdrop-blur-md bg-slate-950/60 border border-slate-800/80 shadow-2xl;
 }

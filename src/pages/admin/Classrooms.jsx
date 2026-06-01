@@ -107,16 +107,16 @@ export const AdminClassrooms = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto font-sans">
+    <div className="flex flex-col gap-6 w-full font-sans">
       
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
-          <h1 className="text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-2">
-            Academy Classrooms
+          <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+            Classrooms
           </h1>
-          <p className="text-xs text-slate-400">
-            Define learning groups, set seat limits, and assign certified faculty leaders.
+          <p className="text-xs text-gray-400">
+            Manage learning groups, set seat capacities, and assign teachers to classrooms.
           </p>
         </div>
 
@@ -125,20 +125,20 @@ export const AdminClassrooms = () => {
           onClick={handleOpenCreate}
           className="rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
         >
-          <Plus size={16} /> Create Classroom
+          <Plus size={16} /> New Classroom
         </Button>
       </div>
 
       {/* Grid Dashboard */}
       {classrooms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white dark:bg-slate-900 border rounded-3xl mt-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400">
+        <div className="flex flex-col items-center justify-center text-center gap-3 p-16 bg-white border rounded-3xl mt-4">
+          <div className="p-4 bg-gray-50 rounded-full text-gray-400">
             <School size={32} />
           </div>
           <div>
-            <h3 className="font-extrabold text-sm text-slate-700 dark:text-slate-200">No Classrooms Available</h3>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm leading-relaxed">
-              Register classrooms first to start enrolling students and assigning academic guides.
+            <h3 className="font-extrabold text-sm text-gray-700">No Classrooms Yet</h3>
+            <p className="text-xs text-gray-400 mt-1 max-w-sm leading-relaxed">
+              Create your first classroom to start enrolling students and assigning teachers.
             </p>
           </div>
         </div>
@@ -153,11 +153,11 @@ export const AdminClassrooms = () => {
               <Card
                 key={cls.id}
                 title={`${cls.name} - ${cls.section}`}
-                subtitle={`Capacity Limit: ${cls.capacity}`}
+                subtitle={`Capacity: ${cls.capacity} seats`}
                 icon={School}
                 glow
-                glowColor={loadPercent > 90 ? 'rose' : loadPercent > 70 ? 'amber' : 'indigo'}
-                className="cursor-pointer group hover:scale-[1.01] hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300"
+                glowColor={loadPercent > 90 ? 'rose' : loadPercent > 70 ? 'amber' : 'blue'}
+                className="cursor-pointer group hover:scale-[1.01] hover:border-gray-300 transition-all duration-300"
                 onClick={() => navigate(`/admin/classrooms/${cls.id}`)}
                 action={
                   <div className="flex items-center gap-1">
@@ -165,7 +165,7 @@ export const AdminClassrooms = () => {
                       variant="ghost"
                       size="sm"
                       onClick={(e) => handleOpenEdit(cls, e)}
-                      className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-xl"
+                      className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-50 rounded-xl"
                     >
                       <Edit2 size={13} />
                     </Button>
@@ -173,7 +173,7 @@ export const AdminClassrooms = () => {
                       variant="ghost"
                       size="sm"
                       onClick={(e) => handleOpenDelete(cls.id, e)}
-                      className="p-2 text-slate-400 hover:text-rose-500 hover:bg-slate-50 dark:hover:bg-slate-800/40 rounded-xl"
+                      className="p-2 text-gray-400 hover:text-rose-500 hover:bg-gray-50 rounded-xl"
                     >
                       <Trash2 size={13} />
                     </Button>
@@ -183,12 +183,12 @@ export const AdminClassrooms = () => {
                 <div className="flex flex-col gap-4">
                   {/* Assigned Teacher details */}
                   <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 flex-shrink-0">
+                    <div className="p-1.5 rounded-lg bg-gray-50 text-gray-400 flex-shrink-0">
                       <User size={14} />
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[10px] text-slate-400 font-semibold uppercase leading-none">Class Leader</span>
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate mt-0.5">
+                      <span className="text-[10px] text-gray-400 font-semibold uppercase leading-none">Assigned Teacher</span>
+                      <span className="text-xs font-bold text-gray-700 truncate mt-0.5">
                         {assignedTeacher ? assignedTeacher.name : 'Unassigned'}
                       </span>
                     </div>
@@ -197,21 +197,21 @@ export const AdminClassrooms = () => {
                   {/* Enrollment progress */}
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center justify-between text-[10px] font-bold">
-                      <span className="text-slate-400 flex items-center gap-1">
-                        <Users size={12} /> {enrolledStudents} Enrolled
+                      <span className="text-gray-400 flex items-center gap-1">
+                        <Users size={12} /> {enrolledStudents} enrolled
                       </span>
                       <span className={`${
                         loadPercent > 90
                           ? 'text-rose-500'
                           : loadPercent > 70
                           ? 'text-orange-500'
-                          : 'text-indigo-500'
+                          : 'text-blue-500'
                       }`}>
-                        {loadPercent}% Seats Occupied
+                        {loadPercent}% full
                       </span>
                     </div>
                     
-                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
                         style={{ width: `${loadPercent}%` }}
                         className={`h-full rounded-full transition-all duration-300 ${
@@ -219,16 +219,16 @@ export const AdminClassrooms = () => {
                             ? 'bg-rose-600'
                             : loadPercent > 70
                             ? 'bg-amber-500'
-                            : 'bg-indigo-600'
+                            : 'bg-blue-600'
                         }`}
                       />
                     </div>
                   </div>
 
                   {/* Action Link Footer */}
-                  <div className="flex items-center justify-between pt-4.5 border-t border-slate-50 dark:border-slate-800/60 text-xs font-semibold text-slate-400 group-hover:text-indigo-500 transition-colors mt-2">
+                  <div className="flex items-center justify-between pt-4.5 border-t border-gray-100 text-xs font-semibold text-gray-400 group-hover:text-blue-500 transition-colors mt-2">
                     <span className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider">
-                      <GraduationCap size={13} /> View Student roster
+                      <GraduationCap size={13} /> View Student Roster
                     </span>
                     <ArrowRight size={13} className="transform group-hover:translate-x-1 transition-transform" />
                   </div>
@@ -245,21 +245,21 @@ export const AdminClassrooms = () => {
       <Dialog
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingClassroom ? `Edit Classroom: ${editingClassroom.name}-${editingClassroom.section}` : 'Create Classroom'}
+        title={editingClassroom ? `Edit Classroom: ${editingClassroom.name}-${editingClassroom.section}` : 'New Classroom'}
         size="md"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Classroom Identifier (Grade)"
-              placeholder="Grade 5"
+              label="Class Name"
+              placeholder="e.g. Grade 5"
               value={name}
               onChange={(e) => setName(e.target.value)}
               error={formErrors.name}
             />
             <Input
-              label="Section Identifier"
-              placeholder="A"
+              label="Section"
+              placeholder="e.g. A"
               value={section}
               onChange={(e) => setSection(e.target.value)}
               error={formErrors.section}
@@ -268,7 +268,7 @@ export const AdminClassrooms = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Capacity Limit (Seats)"
+              label="Seat Capacity"
               placeholder="30"
               type="number"
               value={capacity}
@@ -278,15 +278,15 @@ export const AdminClassrooms = () => {
 
             {/* Assign teacher select picklist */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wide">
-                Assign Class Leader (Teacher)
+              <label className="text-xs font-semibold text-gray-600 tracking-wide">
+                Assign Teacher
               </label>
               <select
                 value={teacherId}
                 onChange={(e) => setTeacherId(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 outline-none text-sm text-slate-700 dark:text-slate-200 focus:border-indigo-500 transition-colors"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white outline-none text-sm text-gray-700 focus:border-blue-500 transition-colors"
               >
-                <option value="">-- Choose Instructor --</option>
+                <option value="">-- Select a Teacher --</option>
                 {teachers.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} ({t.subject})
@@ -298,8 +298,8 @@ export const AdminClassrooms = () => {
 
           {/* Assign Students Multi-Select */}
           <MultiSelect
-            label="Assign Students to Classroom"
-            placeholder="Select students to enroll..."
+            label="Enroll Students"
+            placeholder="Search and select students..."
             options={students.filter(s => !s.classroomId || s.classroomId === '' || (editingClassroom && s.classroomId === editingClassroom.id)).map(s => ({ value: s.id, label: `${s.name} (Age ${s.age})` }))}
             selectedValues={selectedStudentIds}
             onChange={setSelectedStudentIds}
@@ -310,7 +310,7 @@ export const AdminClassrooms = () => {
               Cancel
             </Button>
             <Button type="submit" variant="primary" className="rounded-xl font-bold">
-              {editingClassroom ? 'Save settings' : 'Create Classroom'}
+              {editingClassroom ? 'Save Changes' : 'Create Classroom'}
             </Button>
           </div>
         </form>
@@ -323,9 +323,9 @@ export const AdminClassrooms = () => {
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        title="Remove Classroom Profile?"
-        message="Are you sure you want to delete this classroom? Deleting this classroom will unassign enrolled students, and they will need to be reallocated into active classrooms."
-        confirmText="Confirm Delete"
+        title="Delete Classroom?"
+        message="Are you sure you want to delete this classroom? All enrolled students will be unassigned and will need to be moved to another classroom."
+        confirmText="Delete"
       />
     </div>
   );
