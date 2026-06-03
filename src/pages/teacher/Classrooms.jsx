@@ -7,7 +7,7 @@ import { School, Users, ArrowRight, GraduationCap, Inbox } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const TeacherClassrooms = () => {
-  const { currentUser, classrooms, students } = useApp();
+  const { currentUser, classrooms, students, classroomStudents } = useApp();
   const navigate = useNavigate();
 
   // Filter classrooms assigned to this teacher
@@ -48,7 +48,7 @@ export const TeacherClassrooms = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
           {assignedClassrooms.map((cls) => {
-            const classStudents = students.filter(s => s.classroomId === cls.id);
+            const classStudents = students.filter(s => classroomStudents.some(cs => cs.studentId === s.id && cs.classroomId === cls.id));
             const enrolledCount = classStudents.length;
             const fillPercent = Math.min(100, Math.round((enrolledCount / cls.capacity) * 100));
 

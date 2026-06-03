@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export const AdminDashboard = () => {
-  const { teachers, parents, students, classrooms, activities, mailReceipts } = useApp();
+  const { teachers, parents, students, classrooms, activities, mailReceipts, classroomStudents } = useApp();
   const navigate = useNavigate();
 
   // Metrics Calculations
@@ -29,16 +29,61 @@ export const AdminDashboard = () => {
   // Custom Chart Data: 1. Student Gender Breakdown
   const maleCount = students.filter(s => s.gender === 'Male').length;
   const femaleCount = students.filter(s => s.gender === 'Female').length;
-  const otherCount = students.filter(s => s.gender === 'Other').length;
-  const totalGenders = Math.max(1, maleCount + femaleCount + otherCount);
+  const totalGenders = Math.max(1, maleCount + femaleCount);
   
   const malePercentage = Math.round((maleCount / totalGenders) * 100);
   const femalePercentage = Math.round((femaleCount / totalGenders) * 100);
-  const otherPercentage = Math.round((otherCount / totalGenders) * 100);
+
+  // Animation and interactivity states for the Gender Distribution chart
+  const [animatedPercentages, setAnimatedPercentages] = React.useState({ male: 0, female: 0 });
+  const [hoveredGender, setHoveredGender] = React.useState(null);
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [animatedStudentCount, setAnimatedStudentCount] = React.useState(0);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (isMounted) {
+      setAnimatedPercentages({
+        male: malePercentage,
+        female: femalePercentage
+      });
+    }
+  }, [isMounted, malePercentage, femalePercentage]);
+
+  React.useEffect(() => {
+    if (totalStudents === 0) return;
+    const end = totalStudents;
+    const duration = 1000; // 1 second
+    let startTime = null;
+
+    const animateCount = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Ease out quad
+      const easeProgress = progress * (2 - progress);
+      const current = Math.floor(easeProgress * end);
+      
+      setAnimatedStudentCount(current);
+
+      if (progress < 1) {
+        requestAnimationFrame(animateCount);
+      } else {
+        setAnimatedStudentCount(end);
+      }
+    };
+
+    const animId = requestAnimationFrame(animateCount);
+    return () => cancelAnimationFrame(animId);
+  }, [totalStudents]);
 
   // Custom Chart Data: 2. Classroom Enrollment Capacities (Bar chart)
   const classroomChartData = classrooms.map(cls => {
-    const studentsInClass = students.filter(s => s.classroomId === cls.id).length;
+    const studentsInClass = classroomStudents.filter(cs => cs.classroomId === cls.id).length;
     const fillPercent = Math.min(100, Math.round((studentsInClass / cls.capacity) * 100));
     return {
       name: `${cls.name}-${cls.section}`,
@@ -208,10 +253,16 @@ export const AdminDashboard = () => {
                 r="15.915"
                 fill="transparent"
                 stroke="#3b82f6"
-                strokeWidth="4.8"
-                strokeDasharray={`${malePercentage} ${100 - malePercentage}`}
+                strokeWidth={hoveredGender === 'Male' ? '5.8' : '4.8'}
+                strokeDasharray={`${animatedPercentages.male} ${100 - animatedPercentages.male}`}
                 strokeDashoffset="0"
-                className="transition-all duration-500"
+                className="transition-all duration-500 cursor-pointer ease-out"
+                style={{
+                  opacity: hoveredGender && hoveredGender !== 'Male' ? 0.35 : 1,
+                  filter: hoveredGender === 'Male' ? 'drop-shadow(0px 1px 2px rgba(59, 130, 246, 0.4))' : 'none'
+                }}
+                onMouseEnter={() => setHoveredGender('Male')}
+                onMouseLeave={() => setHoveredGender(null)}
               />
 
               {/* Female segment: pink */}
@@ -221,31 +272,71 @@ export const AdminDashboard = () => {
                 r="15.915"
                 fill="transparent"
                 stroke="#ec4899"
-                strokeWidth="4.8"
-                strokeDasharray={`${femalePercentage} ${100 - femalePercentage}`}
-                strokeDashoffset={-malePercentage}
-                className="transition-all duration-500"
+                strokeWidth={hoveredGender === 'Female' ? '5.8' : '4.8'}
+                strokeDasharray={`${animatedPercentages.female} ${100 - animatedPercentages.female}`}
+                strokeDashoffset={-animatedPercentages.male}
+                className="transition-all duration-500 cursor-pointer ease-out"
+                style={{
+                  opacity: hoveredGender && hoveredGender !== 'Female' ? 0.35 : 1,
+                  filter: hoveredGender === 'Female' ? 'drop-shadow(0px 1px 2px rgba(236, 72, 153, 0.4))' : 'none'
+                }}
+                onMouseEnter={() => setHoveredGender('Female')}
+                onMouseLeave={() => setHoveredGender(null)}
               />
             </svg>
-            <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-xl font-black">{totalStudents}</span>
-              <span className="text-[9px] uppercase font-bold text-gray-400">Students</span>
+            <div className="absolute flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+              {hoveredGender ? (
+                <>
+                  <span className={`text-2xl font-black transition-all duration-300 ${
+                    hoveredGender === 'Male' 
+                      ? 'text-blue-500' 
+                      : 'text-pink-500'
+                  }`}>
+                    {hoveredGender === 'Male' ? maleCount : femaleCount}
+                  </span>
+                  <span className="text-[9px] uppercase font-bold text-gray-500 tracking-wider">
+                    {hoveredGender}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl font-black text-gray-800 transition-all duration-300">
+                    {animatedStudentCount}
+                  </span>
+                  <span className="text-[9px] uppercase font-bold text-gray-400 tracking-wider">
+                    Students
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
           {/* Legend Table */}
-          <div className="flex flex-col gap-2.5 mt-4">
-            <div className="flex items-center justify-between text-xs font-semibold">
+          <div className="flex flex-col gap-1.5 mt-4">
+            <div 
+              className={`flex items-center justify-between text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                hoveredGender === 'Male' ? 'bg-blue-50 text-blue-600 scale-[1.02]' : 'hover:bg-gray-50 text-gray-600'
+              }`}
+              onMouseEnter={() => setHoveredGender('Male')}
+              onMouseLeave={() => setHoveredGender(null)}
+            >
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                <span className="text-gray-600">Male</span>
+                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                <span>Male</span>
               </div>
               <span className="font-extrabold">{maleCount} ({malePercentage}%)</span>
             </div>
-            <div className="flex items-center justify-between text-xs font-semibold">
+
+            <div 
+              className={`flex items-center justify-between text-xs font-semibold px-2.5 py-1.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                hoveredGender === 'Female' ? 'bg-pink-50 text-pink-600 scale-[1.02]' : 'hover:bg-gray-50 text-gray-600'
+              }`}
+              onMouseEnter={() => setHoveredGender('Female')}
+              onMouseLeave={() => setHoveredGender(null)}
+            >
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
-                <span className="text-gray-600">Female</span>
+                <span className="w-2 h-2 rounded-full bg-pink-500" />
+                <span>Female</span>
               </div>
               <span className="font-extrabold">{femaleCount} ({femalePercentage}%)</span>
             </div>

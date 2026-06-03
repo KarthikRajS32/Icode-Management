@@ -10,7 +10,7 @@ import { Avatar } from '../../components/Avatar';
 import { Plus, Edit2, Trash2, Eye, Mail, Phone, MapPin, GraduationCap } from 'lucide-react';
 
 export const AdminParents = () => {
-  const { parents, addParent, updateParent, deleteParent, classrooms, students } = useApp();
+  const { parents, addParent, updateParent, deleteParent, classrooms, students, classroomStudents } = useApp();
 
   // Core Dialog State
   const [modalOpen, setModalOpen] = useState(false);
@@ -26,7 +26,6 @@ export const AdminParents = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [password, setPassword] = useState('');
 
   // Form Fields State: Child Details
   const [childName, setChildName] = useState('');
@@ -41,7 +40,6 @@ export const AdminParents = () => {
     setEmail('');
     setPhone('');
     setAddress('');
-    setPassword('');
     setChildName('');
     setChildAge('');
     setChildGender('Male');
@@ -70,7 +68,9 @@ export const AdminParents = () => {
       setChildName(child.name);
       setChildAge(String(child.age));
       setChildGender(child.gender);
-      setClassroomId(child.classroomId || '');
+      // Pre-populate with the first assigned classroom of the child
+      const childAssignment = classroomStudents.find(cs => cs.studentId === child.id);
+      setClassroomId(childAssignment ? childAssignment.classroomId : '');
     }
     
     setModalOpen(true);
@@ -78,13 +78,18 @@ export const AdminParents = () => {
 
   const handleOpenView = (parent) => {
     const child = students.find(s => s.parentId === parent.id);
-    const cls = classrooms.find(c => c.id === child?.classroomId);
+    const assignedClassroomIds = child ? classroomStudents.filter(cs => cs.studentId === child.id).map(cs => cs.classroomId) : [];
+    const assignedClassrooms = classrooms.filter(c => assignedClassroomIds.includes(c.id));
+    const classroomNameList = assignedClassrooms.length > 0 
+      ? assignedClassrooms.map(c => `${c.name}-${c.section}`).join(', ') 
+      : 'Unassigned';
+
     setViewingParent({
       ...parent,
       childName: child?.name || 'N/A',
       childAge: child?.age || 'N/A',
       childGender: child?.gender || 'N/A',
-      classroomName: cls ? `${cls.name}-${cls.section}` : 'Unassigned'
+      classroomName: classroomNameList
     });
     setViewOpen(true);
   };
@@ -112,12 +117,6 @@ export const AdminParents = () => {
     }
 
     if (!address.trim()) errors.address = 'Residential address is required';
-    
-    if (!editingParent && !password.trim()) {
-      errors.password = 'Login password is required';
-    } else if (!editingParent && password.trim().length < 5) {
-      errors.password = 'Password must be at least 5 characters';
-    }
 
     // Child validations
     if (!childName.trim()) errors.childName = 'Child name is required';
@@ -138,7 +137,6 @@ export const AdminParents = () => {
       email,
       phone,
       address,
-      password,
       childName,
       childAge,
       childGender,
@@ -183,14 +181,18 @@ export const AdminParents = () => {
       label: 'Child',
       render: (row) => {
         const child = students.find(s => s.parentId === row.id);
-        const cls = classrooms.find(c => c.id === child?.classroomId);
+        const assignedClassroomIds = child ? classroomStudents.filter(cs => cs.studentId === child.id).map(cs => cs.classroomId) : [];
+        const assignedClassrooms = classrooms.filter(c => assignedClassroomIds.includes(c.id));
+        const classroomNameList = assignedClassrooms.length > 0 
+          ? assignedClassrooms.map(c => `${c.name}-${c.section}`).join(', ') 
+          : 'Unassigned';
         return (
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-extrabold text-gray-700">
               {child?.name || 'N/A'}
             </span>
             <span className="text-[10px] text-gray-400 font-semibold uppercase">
-              Class: {cls ? `${cls.name}-${cls.section}` : 'Unassigned'}
+              Class: {classroomNameList}
             </span>
           </div>
         );
@@ -317,20 +319,6 @@ export const AdminParents = () => {
                 onChange={(e) => setPhone(e.target.value)}
                 error={formErrors.phone}
               />
-              {!editingParent ? (
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={formErrors.password}
-                />
-              ) : (
-                <div className="flex items-end text-xs text-gray-400 p-3 bg-gray-50 rounded-xl">
-                  🔒 Password is locked. Contact the system admin to reset it.
-                </div>
-              )}
             </div>
 
             <Input
@@ -373,7 +361,7 @@ export const AdminParents = () => {
                   Child Gender
                 </label>
                 <div className="flex gap-2">
-                  {['Male', 'Female', 'Other'].map((g) => (
+                  {['Male', 'Female'].map((g) => (
                     <button
                       key={g}
                       type="button"
@@ -508,7 +496,7 @@ export const AdminParents = () => {
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Remove Parent?"
-        message="Are you sure you want to remove this parent? This will also delete their child's enrollment record and deactivate their portal access."
+        message="Are you sure you want to remove this parent? This will also delete their child's enrollment record."
         confirmText="Delete"
       />
     </div>

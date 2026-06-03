@@ -14,7 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export const TeacherDashboard = () => {
-  const { currentUser, classrooms, students, activities } = useApp();
+  const { currentUser, classrooms, students, classroomStudents, activities } = useApp();
   const navigate = useNavigate();
 
   // 1. Calculate assigned classrooms
@@ -22,8 +22,9 @@ export const TeacherDashboard = () => {
   const assignedClassrooms = classrooms.filter(c => c.teacherId === teacherId);
   const assignedClassroomIds = assignedClassrooms.map(c => c.id);
 
-  // 2. Calculate students in these classrooms
-  const teacherStudents = students.filter(s => assignedClassroomIds.includes(s.classroomId));
+  // 2. Calculate students in these classrooms using classroomStudents join state
+  const teacherStudentIds = classroomStudents.filter(cs => assignedClassroomIds.includes(cs.classroomId)).map(cs => cs.studentId);
+  const teacherStudents = students.filter(s => teacherStudentIds.includes(s.id));
   const totalStudents = teacherStudents.length;
 
   // 3. Today's activities logged by this teacher

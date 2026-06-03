@@ -10,7 +10,7 @@ import { Plus, Edit2, Trash2, ArrowRight, User, Users, GraduationCap, School } f
 import { useNavigate } from 'react-router-dom';
 
 export const AdminClassrooms = () => {
-  const { classrooms, teachers, students, addClassroom, updateClassroom, deleteClassroom } = useApp();
+  const { classrooms, teachers, students, classroomStudents, addClassroom, updateClassroom, deleteClassroom } = useApp();
   const navigate = useNavigate();
 
   // Dialog states
@@ -52,8 +52,8 @@ export const AdminClassrooms = () => {
     setSection(cls.section);
     setCapacity(String(cls.capacity));
     setTeacherId(cls.teacherId || '');
-    // Pre-select students currently in this classroom
-    const currentStudentIds = students.filter(s => s.classroomId === cls.id).map(s => s.id);
+    // Pre-select students currently in this classroom using classroomStudents join state
+    const currentStudentIds = classroomStudents.filter(cs => cs.classroomId === cls.id).map(cs => cs.studentId);
     setSelectedStudentIds(currentStudentIds);
     setModalOpen(true);
   };
@@ -146,7 +146,7 @@ export const AdminClassrooms = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
           {classrooms.map((cls) => {
             const assignedTeacher = teachers.find(t => t.id === cls.teacherId);
-            const enrolledStudents = students.filter(s => s.classroomId === cls.id).length;
+            const enrolledStudents = classroomStudents.filter(cs => cs.classroomId === cls.id).length;
             const loadPercent = Math.min(100, Math.round((enrolledStudents / cls.capacity) * 100));
 
             return (
@@ -300,7 +300,7 @@ export const AdminClassrooms = () => {
           <MultiSelect
             label="Enroll Students"
             placeholder="Search and select students..."
-            options={students.filter(s => !s.classroomId || s.classroomId === '' || (editingClassroom && s.classroomId === editingClassroom.id)).map(s => ({ value: s.id, label: `${s.name} (Age ${s.age})` }))}
+            options={students.map(s => ({ value: s.id, label: `${s.name} (Age ${s.age})` }))}
             selectedValues={selectedStudentIds}
             onChange={setSelectedStudentIds}
           />

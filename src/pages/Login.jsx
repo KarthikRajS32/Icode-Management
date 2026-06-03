@@ -90,7 +90,7 @@ export const Login = () => {
             <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
           </button>
 
-          <button
+          {/* <button
             type="button"
             onClick={() => handleQuickLogin('teacher@gmail.com', 'teacher123')}
             className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-150 cursor-pointer group"
@@ -105,7 +105,7 @@ export const Login = () => {
               </div>
             </div>
             <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

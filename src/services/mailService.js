@@ -16,7 +16,7 @@
  */
 export const sendStudentActivityMail = (activity, student, parent, teacher, classroom) => {
   return new Promise((resolve) => {
-    const parentEmail = parent?.email || `${student?.name?.toLowerCase()?.replace(/\s+/g, '.')}@gmail.com`;
+    const parentEmail = student?.parentEmail || parent?.email || '';
     const subject = `📢 [ICode Academy] Student Observation Report: ${student?.name} - ${activity.title}`;
     
     // Simulate Future-Ready Email Delivery Payload
@@ -44,7 +44,10 @@ export const sendStudentActivityMail = (activity, student, parent, teacher, clas
           activityDate: formatDateString(activity.date || new Date()),
           teacherSignature: teacher?.name || 'Classroom Instructor',
           teacherSubject: teacher?.subject || 'ICode Faculty Member',
-          attachmentUrl: activity.customPhoto || `[Preset Illustration Theme: ${activity.photoPreset}]`
+          attachmentUrl: (activity.images && activity.images[0]) || activity.customPhoto || `[Preset Illustration Theme: ${activity.photoPreset}]`,
+          attachmentUrls: activity.images && activity.images.length > 0 
+            ? activity.images 
+            : (activity.customPhoto ? [activity.customPhoto] : [`[Preset Illustration Theme: ${activity.photoPreset}]`])
         }
       }
     };

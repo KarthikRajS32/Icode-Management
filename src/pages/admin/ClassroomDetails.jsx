@@ -13,7 +13,7 @@ import { ArrowLeft, Plus, Edit2, Trash2, Users, User, School } from 'lucide-reac
 export const AdminClassroomDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { classrooms, teachers, students, addStudentDirect, updateStudentDirect, deleteStudentDirect } = useApp();
+  const { classrooms, teachers, students, classroomStudents, addStudentDirect, updateStudentDirect, deleteStudentDirect } = useApp();
 
   // Dialog states
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,6 +27,7 @@ export const AdminClassroomDetails = () => {
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('Male');
   const [parentName, setParentName] = useState('');
+  const [parentEmail, setParentEmail] = useState('');
 
   const [formErrors, setFormErrors] = useState({});
 
@@ -53,7 +54,7 @@ export const AdminClassroomDetails = () => {
 
   // Gather details
   const classTeacher = teachers.find(t => t.id === classroom.teacherId);
-  const classStudents = students.filter(s => s.classroomId === classroom.id);
+  const classStudents = students.filter(s => classroomStudents.some(cs => cs.studentId === s.id && cs.classroomId === classroom.id));
   const seatOccupancy = classStudents.length;
   const seatPercentage = Math.min(100, Math.round((seatOccupancy / classroom.capacity) * 100));
 
@@ -62,6 +63,7 @@ export const AdminClassroomDetails = () => {
     setAge('');
     setGender('Male');
     setParentName('');
+    setParentEmail('');
     setFormErrors({});
     setEditingStudent(null);
   };
@@ -78,6 +80,7 @@ export const AdminClassroomDetails = () => {
     setAge(String(student.age));
     setGender(student.gender);
     setParentName(student.parentName || '');
+    setParentEmail(student.parentEmail || '');
     setModalOpen(true);
   };
 
@@ -94,6 +97,11 @@ export const AdminClassroomDetails = () => {
       errors.age = 'Please enter a valid age (3+)';
     }
     if (!parentName.trim()) errors.parentName = 'Parent Name is required';
+    if (!parentEmail.trim()) {
+      errors.parentEmail = 'Parent email is required';
+    } else if (!/\S+@\S+\.\S+/.test(parentEmail)) {
+      errors.parentEmail = 'Enter a valid email address';
+    }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -108,6 +116,7 @@ export const AdminClassroomDetails = () => {
       age: parseInt(age, 10),
       gender,
       parentName,
+      parentEmail,
       classroomId: classroom.id
     };
 
@@ -163,11 +172,18 @@ export const AdminClassroomDetails = () => {
       key: 'parentName',
       label: 'Parent',
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <User size={14} className="text-gray-400" />
-          <span className="text-xs font-semibold text-gray-600">
-            {row.parentName || 'N/A'}
-          </span>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2">
+            <User size={14} className="text-gray-400" />
+            <span className="text-xs font-semibold text-gray-600">
+              {row.parentName || 'N/A'}
+            </span>
+          </div>
+          {row.parentEmail && (
+            <span className="text-[10px] text-gray-400 pl-5 leading-none">
+              {row.parentEmail}
+            </span>
+          )}
         </div>
       )
     },
@@ -210,10 +226,10 @@ export const AdminClassroomDetails = () => {
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
           <div className="flex flex-col gap-0.5">
-            <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">
+            <h1 className="text-xl md:text-xl font-black text-gray-800 tracking-tight">
               {classroom.name} — Section {classroom.section}
             </h1>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm text-gray-600 font-medium">
               Teacher: <b className="text-gray-600 font-bold">{classTeacher ? classTeacher.name : 'No teacher assigned'}</b>
             </p>
           </div>
@@ -320,7 +336,7 @@ export const AdminClassroomDetails = () => {
                 Gender
               </label>
               <div className="flex gap-2">
-                {['Male', 'Female', 'Other'].map((g) => (
+                {['Male', 'Female'].map((g) => (
                   <button
                     key={g}
                     type="button"
@@ -338,22 +354,24 @@ export const AdminClassroomDetails = () => {
             </div>
           </div>
 
-          <Input
-            label="Parent / Guardian Name"
-            placeholder="e.g. Grace Miller"
-            value={parentName}
-            onChange={(e) => setParentName(e.target.value)}
-            error={formErrors.parentName}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Parent / Guardian Name"
+              placeholder="e.g. Grace Miller"
+              value={parentName}
+              onChange={(e) => setParentName(e.target.value)}
+              error={formErrors.parentName}
+            />
 
-          {!editingStudent && (
-            <div className="p-3.5 bg-gray-50 border border-gray-100 rounded-2xl flex flex-col gap-1 mt-1 text-[10px] text-gray-400">
-              <span className="font-extrabold text-gray-500">💡 Auto Account Creation</span>
-              <span>
-                A parent portal account will be automatically created. Login: <b>{parentName.toLowerCase().replace(/\s+/g, '.')}@gmail.com</b> / password: <b>parent123</b>.
-              </span>
-            </div>
-          )}
+            <Input
+              label="Parent Email Address"
+              type="email"
+              placeholder="e.g. grace.miller@gmail.com"
+              value={parentEmail}
+              onChange={(e) => setParentEmail(e.target.value)}
+              error={formErrors.parentEmail}
+            />
+          </div>
 
           <div className="flex items-center gap-3 justify-end mt-4">
             <Button variant="secondary" onClick={() => setModalOpen(false)} className="rounded-xl">
@@ -374,7 +392,7 @@ export const AdminClassroomDetails = () => {
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Remove Student?"
-        message="Are you sure you want to remove this student? Their activity records will be deleted and the associated parent account will be deactivated."
+        message="Are you sure you want to remove this student? Their activity records will also be permanently deleted."
         confirmText="Remove"
       />
     </div>

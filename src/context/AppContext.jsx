@@ -4,7 +4,9 @@ import {
   INITIAL_PARENTS,
   INITIAL_CLASSROOMS,
   INITIAL_STUDENTS,
-  INITIAL_ACTIVITIES
+  INITIAL_ACTIVITIES,
+  INITIAL_CLASSROOM_STUDENTS,
+  ACTIVITY_PHOTO_PRESETS
 } from '../data/mockData';
 import { sendStudentActivityMail } from '../services/mailService';
 
@@ -30,6 +32,7 @@ export const AppProvider = ({ children }) => {
   const [parents, setParents] = useState(() => getStoredItem('icode_parents', INITIAL_PARENTS));
   const [classrooms, setClassrooms] = useState(() => getStoredItem('icode_classrooms', INITIAL_CLASSROOMS));
   const [students, setStudents] = useState(() => getStoredItem('icode_students', INITIAL_STUDENTS));
+  const [classroomStudents, setClassroomStudents] = useState(() => getStoredItem('icode_classroom_students', INITIAL_CLASSROOM_STUDENTS));
   const [activities, setActivities] = useState(() => getStoredItem('icode_activities', INITIAL_ACTIVITIES));
 
   const defaultAccounts = [
@@ -45,6 +48,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => setStoredItem('icode_parents', parents), [parents]);
   useEffect(() => setStoredItem('icode_classrooms', classrooms), [classrooms]);
   useEffect(() => setStoredItem('icode_students', students), [students]);
+  useEffect(() => setStoredItem('icode_classroom_students', classroomStudents), [classroomStudents]);
   useEffect(() => setStoredItem('icode_activities', activities), [activities]);
   useEffect(() => setStoredItem('icode_accounts', accounts), [accounts]);
   useEffect(() => setStoredItem('icode_current_user', currentUser), [currentUser]);
@@ -106,18 +110,32 @@ export const AppProvider = ({ children }) => {
   const addParent = (form) => {
     const parentId = `p-${Date.now()}`;
     const studentId = `s-${Date.now()}`;
-    const newParent = { id: parentId, name: form.name.trim(), email: form.email.toLowerCase().trim(), phone: form.phone.trim(), address: form.address.trim(), childId: studentId };
-    const newStudent = { id: studentId, name: form.childName.trim(), age: parseInt(form.childAge, 10) || 10, gender: form.childGender || 'Male', parentId, classroomId: form.classroomId || '', parentName: form.name.trim() };
+    const pEmail = form.email.toLowerCase().trim();
+    const newParent = { id: parentId, name: form.name.trim(), email: pEmail, phone: form.phone.trim(), address: form.address.trim(), childId: studentId };
+    const newStudent = { id: studentId, name: form.childName.trim(), age: parseInt(form.childAge, 10) || 10, gender: form.childGender || 'Male', parentId, parentName: form.name.trim(), parentEmail: pEmail };
     setParents(prev => [...prev, newParent]);
     setStudents(prev => [...prev, newStudent]);
+    if (form.classroomId) {
+      setClassroomStudents(prev => [...prev, { studentId, classroomId: form.classroomId }]);
+    }
     triggerToast('Parent & child registered successfully!', 'success');
   };
 
   const updateParent = (id, form) => {
     const oldParent = parents.find(p => p.id === id);
     if (!oldParent) return;
-    setParents(prev => prev.map(p => p.id === id ? { ...p, name: form.name, email: form.email, phone: form.phone, address: form.address } : p));
-    setStudents(prev => prev.map(s => s.id === oldParent.childId ? { ...s, name: form.childName, age: parseInt(form.childAge, 10), gender: form.childGender, parentName: form.name, classroomId: form.classroomId ?? s.classroomId } : s));
+    const pEmail = form.email.toLowerCase().trim();
+    setParents(prev => prev.map(p => p.id === id ? { ...p, name: form.name, email: pEmail, phone: form.phone, address: form.address } : p));
+    setStudents(prev => prev.map(s => s.id === oldParent.childId ? { ...s, name: form.childName, age: parseInt(form.childAge, 10), gender: form.childGender, parentName: form.name, parentEmail: pEmail } : s));
+    if (form.classroomId !== undefined) {
+      setClassroomStudents(prev => {
+        const withoutChild = prev.filter(cs => cs.studentId !== oldParent.childId);
+        if (form.classroomId) {
+          return [...withoutChild, { studentId: oldParent.childId, classroomId: form.classroomId }];
+        }
+        return withoutChild;
+      });
+    }
     triggerToast('Family record updated.', 'success');
   };
 
@@ -126,6 +144,7 @@ export const AppProvider = ({ children }) => {
     if (!target) return;
     setParents(prev => prev.filter(p => p.id !== id));
     setStudents(prev => prev.filter(s => s.parentId !== id));
+    setClassroomStudents(prev => prev.filter(cs => cs.studentId !== target.childId));
     setActivities(prev => prev.filter(act => act.studentId !== target.childId));
     triggerToast('Family record removed.', 'info');
   };
@@ -136,24 +155,25 @@ export const AppProvider = ({ children }) => {
     const newClassroom = { id: classId, name: form.name.trim(), section: form.section.toUpperCase().trim(), capacity: parseInt(form.capacity, 10) || 30, teacherId: form.teacherId || null };
     setClassrooms(prev => [...prev, newClassroom]);
     if (selectedStudentIds.length > 0) {
-      setStudents(prev => prev.map(s => selectedStudentIds.includes(s.id) ? { ...s, classroomId: classId } : s));
+      const newMappings = selectedStudentIds.map(stId => ({ studentId: stId, classroomId: classId }));
+      setClassroomStudents(prev => [...prev, ...newMappings]);
     }
     triggerToast(`Classroom "${newClassroom.name}-${newClassroom.section}" created.`, 'success');
   };
 
   const updateClassroom = (classId, form, selectedStudentIds = []) => {
     setClassrooms(prev => prev.map(c => c.id === classId ? { ...c, name: form.name.trim(), section: form.section.toUpperCase().trim(), capacity: parseInt(form.capacity, 10), teacherId: form.teacherId || null } : c));
-    setStudents(prev => prev.map(s => {
-      if (selectedStudentIds.includes(s.id)) return { ...s, classroomId: classId };
-      if (s.classroomId === classId) return { ...s, classroomId: '' };
-      return s;
-    }));
+    setClassroomStudents(prev => {
+      const otherClassroomMappings = prev.filter(cs => cs.classroomId !== classId);
+      const newMappings = selectedStudentIds.map(stId => ({ studentId: stId, classroomId: classId }));
+      return [...otherClassroomMappings, ...newMappings];
+    });
     triggerToast('Classroom updated.', 'success');
   };
 
   const deleteClassroom = (classId) => {
     setClassrooms(prev => prev.filter(c => c.id !== classId));
-    setStudents(prev => prev.map(s => s.classroomId === classId ? { ...s, classroomId: '' } : s));
+    setClassroomStudents(prev => prev.filter(cs => cs.classroomId !== classId));
     triggerToast('Classroom deleted.', 'info');
   };
 
@@ -161,7 +181,7 @@ export const AppProvider = ({ children }) => {
   const addStudentDirect = (form) => {
     const studentId = `s-${Date.now()}`;
     const parentId = `p-${Date.now()}`;
-    const pEmail = `${form.parentName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
+    const pEmail = form.parentEmail.toLowerCase().trim();
     
     const newParent = {
       id: parentId,
@@ -172,17 +192,7 @@ export const AppProvider = ({ children }) => {
       childId: studentId
     };
 
-    const newAccount = {
-      id: `u-${Date.now()}`,
-      email: pEmail,
-      password: 'parent123',
-      name: form.parentName.trim(),
-      role: 'parent',
-      associatedId: parentId
-    };
-
     setParents(prev => [...prev, newParent]);
-    setAccounts(prev => [...prev, newAccount]);
     setStudents(prev => [
       ...prev,
       {
@@ -191,22 +201,24 @@ export const AppProvider = ({ children }) => {
         age: form.age,
         gender: form.gender,
         parentId: parentId,
-        classroomId: form.classroomId,
-        parentName: form.parentName.trim()
+        parentName: form.parentName.trim(),
+        parentEmail: pEmail
       }
     ]);
+    if (form.classroomId) {
+      setClassroomStudents(prev => [...prev, { studentId, classroomId: form.classroomId }]);
+    }
     triggerToast(`Student "${form.name}" enrolled successfully.`, 'success');
   };
 
   const updateStudentDirect = (id, form) => {
     const student = students.find(s => s.id === id);
     let assignedParentId = student?.parentId || '';
+    const pEmail = form.parentEmail.toLowerCase().trim();
 
     if (student) {
-      const pEmail = `${form.parentName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`;
       if (student.parentId) {
         setParents(prev => prev.map(p => p.id === student.parentId ? { ...p, name: form.parentName.trim(), email: pEmail } : p));
-        setAccounts(prev => prev.map(acc => acc.associatedId === student.parentId ? { ...acc, name: form.parentName.trim(), email: pEmail } : acc));
       } else {
         assignedParentId = `p-${Date.now()}`;
         const newParent = {
@@ -217,16 +229,7 @@ export const AppProvider = ({ children }) => {
           address: 'Not Provided',
           childId: id
         };
-        const newAccount = {
-          id: `u-${Date.now()}`,
-          email: pEmail,
-          password: 'parent123',
-          name: form.parentName.trim(),
-          role: 'parent',
-          associatedId: assignedParentId
-        };
         setParents(prev => [...prev, newParent]);
-        setAccounts(prev => [...prev, newAccount]);
       }
     }
 
@@ -236,9 +239,18 @@ export const AppProvider = ({ children }) => {
       age: form.age,
       gender: form.gender,
       parentName: form.parentName.trim(),
-      classroomId: form.classroomId,
+      parentEmail: pEmail,
       parentId: s.parentId || assignedParentId
     } : s));
+    if (form.classroomId) {
+      setClassroomStudents(prev => {
+        const exists = prev.some(cs => cs.studentId === id && cs.classroomId === form.classroomId);
+        if (!exists) {
+          return [...prev, { studentId: id, classroomId: form.classroomId }];
+        }
+        return prev;
+      });
+    }
     triggerToast('Student record updated.', 'success');
   };
 
@@ -249,6 +261,7 @@ export const AppProvider = ({ children }) => {
       setAccounts(prev => prev.filter(acc => acc.associatedId !== student.parentId));
     }
     setStudents(prev => prev.filter(s => s.id !== id));
+    setClassroomStudents(prev => prev.filter(cs => cs.studentId !== id));
     setActivities(prev => prev.filter(act => act.studentId !== id));
     triggerToast('Student de-enrolled.', 'info');
   };
@@ -256,7 +269,28 @@ export const AppProvider = ({ children }) => {
   // --- Activity Logging ---
   const addStudentActivity = async (form) => {
     const newId = `act-${Date.now()}`;
-    const newActivity = { id: newId, title: form.title.trim(), description: form.description.trim(), photoPreset: form.photoPreset || 'math', customPhoto: form.customPhoto || null, date: form.date || new Date().toISOString().split('T')[0], studentId: form.studentId, classroomId: form.classroomId, teacherId: currentUser?.associatedId || 't-1' };
+    
+    let activityImages = form.images || [];
+    if (activityImages.length === 0 && form.photoPreset) {
+      const preset = ACTIVITY_PHOTO_PRESETS.find(p => p.id === form.photoPreset);
+      if (preset) {
+        activityImages = [preset.url];
+      }
+    }
+
+    const newActivity = {
+      id: newId,
+      activityId: newId,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      photoPreset: form.photoPreset || '',
+      customPhoto: form.customPhoto || null,
+      images: activityImages,
+      date: form.date || new Date().toISOString().split('T')[0],
+      studentId: form.studentId,
+      classroomId: form.classroomId,
+      teacherId: currentUser?.associatedId || 't-1'
+    };
     setActivities(prev => [newActivity, ...prev]);
 
     const targetStudent = students.find(s => s.id === form.studentId);
@@ -287,7 +321,7 @@ export const AppProvider = ({ children }) => {
   return (
     <AppContext.Provider value={{
       currentUser, login, logout,
-      teachers, parents, classrooms, students, activities, mailReceipts,
+      teachers, parents, classrooms, students, classroomStudents, activities, mailReceipts,
       addTeacher, updateTeacher, deleteTeacher,
       addParent, updateParent, deleteParent,
       addClassroom, updateClassroom, deleteClassroom,

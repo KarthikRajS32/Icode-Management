@@ -116,8 +116,8 @@ export const INITIAL_STUDENTS = [
     age: 10,
     gender: 'Male',
     parentId: 'p-1',
-    classroomId: 'c-1', // Grade 5-A
-    parentName: 'John Doe Senior'
+    parentName: 'John Doe Senior',
+    parentEmail: 'john.doe@gmail.com'
   },
   {
     id: 's-2',
@@ -125,8 +125,8 @@ export const INITIAL_STUDENTS = [
     age: 10,
     gender: 'Female',
     parentId: 'p-2',
-    classroomId: 'c-1', // Grade 5-A
-    parentName: 'Robert Smith'
+    parentName: 'Robert Smith',
+    parentEmail: 'robert.smith@gmail.com'
   },
   {
     id: 's-3',
@@ -134,8 +134,8 @@ export const INITIAL_STUDENTS = [
     age: 11,
     gender: 'Male',
     parentId: 'p-3',
-    classroomId: 'c-2', // Grade 6-B
-    parentName: 'Grace Miller'
+    parentName: 'Grace Miller',
+    parentEmail: 'grace.miller@gmail.com'
   },
   {
     id: 's-4',
@@ -143,8 +143,8 @@ export const INITIAL_STUDENTS = [
     age: 12,
     gender: 'Female',
     parentId: 'p-4',
-    classroomId: 'c-3', // Grade 7-A
-    parentName: 'Sophia Lopez'
+    parentName: 'Sophia Lopez',
+    parentEmail: 'sophia.lopez@gmail.com'
   },
   {
     id: 's-5',
@@ -152,9 +152,16 @@ export const INITIAL_STUDENTS = [
     age: 10,
     gender: 'Male',
     parentId: 'p-1',
-    classroomId: '', // Unassigned initially
-    parentName: 'John Doe Senior'
+    parentName: 'John Doe Senior',
+    parentEmail: 'john.doe@gmail.com'
   }
+];
+
+export const INITIAL_CLASSROOM_STUDENTS = [
+  { studentId: 's-1', classroomId: 'c-1' },
+  { studentId: 's-2', classroomId: 'c-1' },
+  { studentId: 's-3', classroomId: 'c-2' },
+  { studentId: 's-4', classroomId: 'c-3' }
 ];
 
 export const INITIAL_ACTIVITIES = [
