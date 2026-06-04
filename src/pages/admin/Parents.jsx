@@ -247,10 +247,10 @@ export const AdminParents = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-0.5">
           <h1 className="text-xl md:text-2xl font-black text-gray-800 tracking-tight">
-            Parents & Families
+            Parents
           </h1>
           <p className="text-xs text-gray-400">
-            Manage parent accounts, view family profiles, and enroll children into classrooms.
+            Manage parent accounts, and enroll children into classrooms.
           </p>
         </div>
 

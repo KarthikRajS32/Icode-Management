@@ -443,7 +443,7 @@ export const TeacherStudentActivities = () => {
       <Dialog
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={activeStudent ? `Log Activity: ${activeStudent.name}` : 'Log Activity'}
+        title={activeStudent ? `Today Activity: ${activeStudent.name}` : 'Today Activity'}
         size="lg"
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
