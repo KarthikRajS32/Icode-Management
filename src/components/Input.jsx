@@ -1,5 +1,6 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import { cn } from '../utils/cn';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const Input = ({
   label, id, type = 'text', error, icon: Icon,
@@ -7,6 +8,10 @@ export const Input = ({
 }) => {
   const stableId = useId();
   const inputId = id || stableId;
+  const [showPassword, setShowPassword] = useState(false);
+
+  const isPassword = type === 'password';
+  const currentType = isPassword ? (showPassword ? 'text' : 'password') : type;
 
   const base = 'w-full px-3.5 py-2.5 rounded-lg border text-sm text-gray-800 bg-white placeholder-gray-400 outline-none transition-all duration-150';
   const state = error
@@ -34,10 +39,19 @@ export const Input = ({
           />
         ) : (
           <input
-            id={inputId} type={type}
-            className={cn(base, state, Icon ? 'pl-10' : '')}
+            id={inputId} type={currentType}
+            className={cn(base, state, Icon ? 'pl-10' : '', isPassword ? 'pr-10' : '')}
             {...props}
           />
+        )}
+        {isPassword && !textarea && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3.5 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer p-0.5 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
         )}
       </div>
       {error && <p className="text-xs text-red-500 font-medium">{error}</p>}

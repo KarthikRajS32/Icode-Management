@@ -9,6 +9,7 @@ import {
   ACTIVITY_PHOTO_PRESETS
 } from '../data/mockData';
 import { sendStudentActivityMail } from '../services/mailService';
+import { supabase, supabaseAdmin } from '../lib/supabase';
 
 const AppContext = createContext(null);
 
@@ -54,6 +55,87 @@ export const AppProvider = ({ children }) => {
   useEffect(() => setStoredItem('icode_current_user', currentUser), [currentUser]);
   useEffect(() => setStoredItem('icode_mail_receipts', mailReceipts), [mailReceipts]);
 
+  // Seeding Super Admin in Supabase Auth if administrative client is active
+  useEffect(() => {
+    const seedAdmin = async () => {
+      if (supabaseAdmin) {
+        try {
+          const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers();
+          if (!error && users) {
+            const adminExists = users.some(u => u.email === 'admin@gmail.com');
+            if (!adminExists) {
+              console.log('Super Admin admin@gmail.com not found. Seeding default Super Admin...');
+              const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+                email: 'admin@gmail.com',
+                password: 'admin123',
+                email_confirm: true,
+                user_metadata: {
+                  role: 'superadmin',
+                  name: 'Super Admin'
+                }
+              });
+              if (createError) {
+                console.error('Failed to seed default Super Admin:', createError.message);
+              } else {
+                console.log('Default Super Admin admin@gmail.com seeded successfully!');
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Failed to list/seed default Super Admin:', e);
+        }
+      }
+    };
+    seedAdmin();
+  }, []);
+
+  // Listen to auth changes and manage session
+  useEffect(() => {
+    const initSessionListener = async () => {
+      // Fetch current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const user = session.user;
+        let role = user.user_metadata?.role;
+        if (!role && user.email === 'admin@gmail.com') role = 'superadmin';
+        role = role || 'teacher';
+        
+        setCurrentUser({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.name || user.email.split('@')[0],
+          role,
+          associatedId: user.user_metadata?.teacherId || null
+        });
+      }
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+          const user = session.user;
+          let role = user.user_metadata?.role;
+          if (!role && user.email === 'admin@gmail.com') role = 'superadmin';
+          role = role || 'teacher';
+
+          setCurrentUser({
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.email.split('@')[0],
+            role,
+            associatedId: user.user_metadata?.teacherId || null
+          });
+        } else {
+          setCurrentUser(null);
+        }
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    initSessionListener();
+  }, []);
+
   const triggerToast = (message, type = 'success') => {
     const id = Date.now();
     setToast({ message, type, id });
@@ -61,44 +143,147 @@ export const AppProvider = ({ children }) => {
   };
 
   // --- Authentication ---
-  const login = (email, password) => {
-    const match = accounts.find(
-      acc => acc.email.toLowerCase() === email.toLowerCase().trim() && acc.password === password
-    );
-    if (match) {
-      setCurrentUser(match);
-      triggerToast(`Welcome back, ${match.name}!`, 'success');
-      return { success: true, user: match };
+  const login = async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password
+      });
+
+      if (error) {
+        triggerToast(`Access denied. ${error.message}`, 'error');
+        return { success: false, error };
+      }
+
+      const user = data.user;
+      let role = user.user_metadata?.role;
+      if (!role && user.email === 'admin@gmail.com') role = 'superadmin';
+      role = role || 'teacher';
+
+      if (role !== 'superadmin' && role !== 'teacher') {
+        await supabase.auth.signOut();
+        triggerToast('Access denied. Role not permitted.', 'error');
+        return { success: false };
+      }
+
+      const associatedId = user.user_metadata?.teacherId || null;
+      const name = user.user_metadata?.name || user.email;
+
+      const userSession = {
+        id: user.id,
+        email: user.email,
+        name,
+        role,
+        associatedId
+      };
+
+      setCurrentUser(userSession);
+      triggerToast(`Welcome back, ${name}!`, 'success');
+      return { success: true, user: userSession };
+    } catch (err) {
+      triggerToast('An error occurred during sign in.', 'error');
+      return { success: false, error: err };
     }
-    triggerToast('Access denied. Invalid credentials.', 'error');
-    return { success: false };
   };
 
-  const logout = () => {
+  const logout = async () => {
     if (currentUser) {
       const name = currentUser.name;
-      setCurrentUser(null);
-      triggerToast(`Signed out. Goodbye, ${name}!`, 'info');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        triggerToast(`Sign Out Error: ${error.message}`, 'error');
+      } else {
+        setCurrentUser(null);
+        triggerToast(`Signed out. Goodbye, ${name}!`, 'info');
+      }
     }
   };
 
   // --- Teacher CRUD ---
-  const addTeacher = (form) => {
+  const addTeacher = async (form) => {
+    if (!supabaseAdmin) {
+      triggerToast('Admin client missing. Add VITE_SUPABASE_SERVICE_ROLE_KEY to .env to invite teachers.', 'error');
+      return { success: false, error: 'Admin client missing' };
+    }
+
     const newId = `t-${Date.now()}`;
-    const newTeacher = { id: newId, name: form.name.trim(), email: form.email.toLowerCase().trim(), phone: form.phone.trim(), subject: form.subject.trim() };
-    const newAccount = { id: `u-${Date.now()}`, email: newTeacher.email, password: form.password || 'teacher123', name: newTeacher.name, role: 'teacher', associatedId: newId };
-    setTeachers(prev => [...prev, newTeacher]);
-    setAccounts(prev => [...prev, newAccount]);
-    triggerToast(`Teacher "${newTeacher.name}" registered successfully!`, 'success');
+    const name = form.name.trim();
+    const email = form.email.toLowerCase().trim();
+    const phone = form.phone.trim();
+    const subject = form.subject.trim();
+
+    try {
+      const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${window.location.origin}/setup-password`,
+        data: {
+          role: 'teacher',
+          name,
+          phone,
+          subject,
+          teacherId: newId
+        }
+      });
+
+      if (error) {
+        triggerToast(`Failed to register teacher: ${error.message}`, 'error');
+        return { success: false, error };
+      }
+
+      // Add to local teachers list
+      const newTeacher = { id: newId, name, email, phone, subject };
+      setTeachers(prev => [...prev, newTeacher]);
+
+      // Add to local accounts mapping
+      const newAccount = {
+        id: data.user.id,
+        email,
+        name,
+        role: 'teacher',
+        associatedId: newId
+      };
+      setAccounts(prev => [...prev, newAccount]);
+
+      triggerToast(`Teacher "${name}" invited successfully!`, 'success');
+      return { success: true };
+    } catch (err) {
+      triggerToast('An error occurred while inviting the teacher.', 'error');
+      return { success: false, error: err };
+    }
   };
 
-  const updateTeacher = (id, form) => {
+  const updateTeacher = async (id, form) => {
+    if (supabaseAdmin) {
+      const account = accounts.find(acc => acc.associatedId === id);
+      if (account) {
+        try {
+          await supabaseAdmin.auth.admin.updateUserById(account.id, {
+            user_metadata: {
+              name: form.name.trim(),
+              phone: form.phone.trim(),
+              subject: form.subject.trim()
+            }
+          });
+        } catch (e) {
+          console.error('Failed to update user in Supabase Auth:', e);
+        }
+      }
+    }
     setTeachers(prev => prev.map(t => t.id === id ? { ...t, name: form.name, phone: form.phone, subject: form.subject } : t));
     setAccounts(prev => prev.map(acc => acc.associatedId === id ? { ...acc, name: form.name } : acc));
     triggerToast('Teacher details saved.', 'success');
   };
 
-  const deleteTeacher = (id) => {
+  const deleteTeacher = async (id) => {
+    if (supabaseAdmin) {
+      const account = accounts.find(acc => acc.associatedId === id);
+      if (account) {
+        try {
+          await supabaseAdmin.auth.admin.deleteUser(account.id);
+        } catch (e) {
+          console.error('Failed to delete user from Supabase Auth:', e);
+        }
+      }
+    }
     setTeachers(prev => prev.filter(t => t.id !== id));
     setAccounts(prev => prev.filter(acc => acc.associatedId !== id));
     setClassrooms(prev => prev.map(c => c.teacherId === id ? { ...c, teacherId: null } : c));

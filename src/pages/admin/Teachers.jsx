@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
@@ -7,7 +7,7 @@ import { Dialog } from '../../components/Dialog';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { Badge } from '../../components/Badge';
 import { Avatar } from '../../components/Avatar';
-import { Plus, Edit2, Trash2, Eye, Mail, Phone, BookOpen, Lock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Mail, Phone } from 'lucide-react';
 
 export const AdminTeachers = () => {
   const { teachers, addTeacher, updateTeacher, deleteTeacher, classrooms } = useApp();
@@ -26,7 +26,7 @@ export const AdminTeachers = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [subject, setSubject] = useState('');
-  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const [formErrors, setFormErrors] = useState({});
 
@@ -36,7 +36,6 @@ export const AdminTeachers = () => {
     setEmail('');
     setPhone('');
     setSubject('');
-    setPassword('');
     setFormErrors({});
     setEditingTeacher(null);
   };
@@ -86,32 +85,35 @@ export const AdminTeachers = () => {
     }
 
     if (!subject.trim()) errors.subject = 'Teaching subject is required';
-    
-    // Password required only for new registrations
-    if (!editingTeacher && !password.trim()) {
-      errors.password = 'Login password is required';
-    } else if (!editingTeacher && password.trim().length < 5) {
-      errors.password = 'Password must be at least 5 characters';
-    }
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const formData = { name, email, phone, subject, password };
+    setSubmitting(true);
+    const formData = { name, email, phone, subject };
 
-    if (editingTeacher) {
-      updateTeacher(editingTeacher.id, formData);
-    } else {
-      addTeacher(formData);
+    try {
+      if (editingTeacher) {
+        await updateTeacher(editingTeacher.id, formData);
+        setModalOpen(false);
+        resetForm();
+      } else {
+        const res = await addTeacher(formData);
+        if (res && res.success) {
+          setModalOpen(false);
+          resetForm();
+        }
+      }
+    } catch (err) {
+      console.error('Error submitting form:', err);
+    } finally {
+      setSubmitting(false);
     }
-
-    setModalOpen(false);
-    resetForm();
   };
 
   const handleConfirmDelete = () => {
@@ -268,23 +270,12 @@ export const AdminTeachers = () => {
             error={formErrors.subject}
           />
 
-          {!editingTeacher && (
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              error={formErrors.password}
-            />
-          )}
-
           <div className="flex items-center gap-3 justify-end mt-4">
-            <Button variant="secondary" onClick={() => setModalOpen(false)} className="rounded-xl">
+            <Button variant="secondary" onClick={() => setModalOpen(false)} className="rounded-xl" disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" className="rounded-xl font-bold">
-              {editingTeacher ? 'Save Changes' : 'Add Teacher'}
+            <Button type="submit" variant="primary" className="rounded-xl font-bold" loading={submitting}>
+              {editingTeacher ? 'Save Changes' : 'Invite Teacher'}
             </Button>
           </div>
         </form>

@@ -70,44 +70,7 @@ export const Login = () => {
         </Button>
       </form>
 
-      <div className="pt-5 border-t border-gray-100">
-        <p className="text-xs font-medium text-gray-400 text-center mb-3">Demo Accounts</p>
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => handleQuickLogin('admin@gmail.com', 'admin123')}
-            className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-150 cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                <span className="text-[10px] font-black text-blue-600">SA</span>
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-semibold text-gray-800">Administrator</p>
-                <p className="text-[11px] text-gray-400">admin@gmail.com</p>
-              </div>
-            </div>
-            <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
-          </button>
-
-          {/* <button
-            type="button"
-            onClick={() => handleQuickLogin('teacher@gmail.com', 'teacher123')}
-            className="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-150 cursor-pointer group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                <span className="text-[10px] font-black text-blue-600">TC</span>
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-semibold text-gray-800">Teacher</p>
-                <p className="text-[11px] text-gray-400">teacher@gmail.com</p>
-              </div>
-            </div>
-            <ArrowRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
-          </button> */}
-        </div>
-      </div>
+      
     </div>
   );
 };

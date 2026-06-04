@@ -7,6 +7,7 @@ import { AdminLayout } from '../layouts/AdminLayout';
 import { TeacherLayout } from '../layouts/TeacherLayout';
 // Portals Pages
 import { Login } from '../pages/Login';
+import { SetupPassword } from '../pages/SetupPassword';
 
 // Admin Portal Pages
 import { AdminDashboard } from '../pages/admin/Dashboard';
@@ -73,6 +74,9 @@ export const AppRoutes = () => {
           )
         }
       />
+
+      {/* Teacher Password Setup Route */}
+      <Route path="/setup-password" element={<SetupPassword />} />
 
       {/* Admin Portal Protected Subroutes */}
       <Route
