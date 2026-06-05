@@ -31,26 +31,26 @@ export const Table = ({
             onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
             className="max-w-xs"
           />
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-slate-400 font-medium tabular-nums">
             {filtered.length === 0 ? '0' : `${start + 1}–${Math.min(start + pageSize, filtered.length)}`} of {filtered.length}
           </span>
         </div>
       )}
 
-      <div className="w-full overflow-x-auto rounded-xl border border-gray-100 bg-white">
+      <div className="w-full overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full min-w-[560px] text-sm text-left">
-          <thead className="bg-gray-50 border-b border-gray-100">
+          <thead className="bg-slate-50 border-b border-slate-200 select-none">
             <tr>
               {columns.map((col, i) => (
-                <th key={col.key || i} className="px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                <th key={col.key || i} className="px-5 py-3 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {col.label}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-slate-100">
             {isLoading ? (
-              <tr><td colSpan={columns.length} className="px-5 py-12 text-center">
+              <tr><td colSpan={columns.length} className="px-5 py-14 text-center">
                 <div className="flex justify-center">
                   <svg className="animate-spin h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -59,18 +59,22 @@ export const Table = ({
                 </div>
               </td></tr>
             ) : paginated.length === 0 ? (
-              <tr><td colSpan={columns.length} className="px-5 py-14 text-center">
-                <div className="flex flex-col items-center gap-2 text-gray-400">
-                  <Inbox size={24} className="text-gray-300" />
-                  <p className="text-sm font-medium text-gray-500">{emptyMessage}</p>
-                  {searchTerm && <p className="text-xs text-gray-400">Try a different search term.</p>}
+              <tr><td colSpan={columns.length} className="px-5 py-16 text-center">
+                <div className="flex flex-col items-center gap-3 text-slate-400">
+                  <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-100">
+                    <Inbox size={22} className="text-slate-300" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-500">{emptyMessage}</p>
+                    {searchTerm && <p className="text-xs text-slate-400 mt-1">Try adjusting your search term.</p>}
+                  </div>
                 </div>
               </td></tr>
             ) : (
               paginated.map((row, ri) => (
-                <tr key={row.id || ri} className="hover:bg-gray-50/60 transition-colors">
+                <tr key={row.id || ri} className="hover:bg-slate-50/70 transition-colors duration-100">
                   {columns.map((col, ci) => (
-                    <td key={ci} className="px-5 py-3.5 text-gray-700">
+                    <td key={ci} className="px-5 py-4 text-slate-700">
                       {col.render ? col.render(row, ri) : row[col.key]}
                     </td>
                   ))}
@@ -83,7 +87,7 @@ export const Table = ({
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <span className="text-xs text-gray-400">Page {activePage} of {totalPages}</span>
+          <span className="text-xs text-slate-400">Page {activePage} of {totalPages}</span>
           <div className="flex items-center gap-1">
             <Button variant="secondary" size="sm" disabled={activePage === 1}
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))} className="w-8 h-8 p-0">

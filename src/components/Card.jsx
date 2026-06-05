@@ -8,6 +8,14 @@ const glowColors = {
   blue:    'text-blue-500 bg-blue-50',
 };
 
+const accentBorders = {
+  indigo:  'border-l-4 border-l-blue-600',
+  emerald: 'border-l-4 border-l-emerald-500',
+  rose:    'border-l-4 border-l-rose-500',
+  amber:   'border-l-4 border-l-amber-500',
+  blue:    'border-l-4 border-l-blue-600',
+};
+
 export const Card = ({
   children, title, subtitle, icon: Icon, className = '',
   headerClassName = '', bodyClassName = '', action,
@@ -16,13 +24,15 @@ export const Card = ({
 }) => {
   if (glow) {
     const iconStyle = glowColors[glowColor] || glowColors.blue;
+    const borderStyle = accentBorders[glowColor] || accentBorders.blue;
     // Detect if this is a numeric metric card (title is a plain number string)
     const isMetric = title && /^\d+$/.test(String(title).trim());
 
     return (
       <div
         className={cn(
-          'bg-white border border-gray-100 rounded-3xl p-6 shadow-xs flex flex-col',
+          'bg-white border border-slate-200/60 rounded-2xl p-6 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col',
+          borderStyle,
           className
         )}
         {...props}
@@ -41,17 +51,17 @@ export const Card = ({
         <div className="flex flex-col gap-1 mb-2">
           {title && (
             isMetric ? (
-              <p className="text-3xl font-black text-gray-800 leading-none tracking-tight">
+              <p className="text-3xl font-black text-slate-800 leading-none tracking-tight">
                 {title}
               </p>
             ) : (
-              <p className="text-base font-extrabold text-gray-800 leading-snug">
+              <p className="text-base font-extrabold text-slate-800 leading-snug">
                 {title}
               </p>
             )
           )}
           {subtitle && (
-            <p className="text-xs text-gray-400 font-medium">{subtitle}</p>
+            <p className="text-xs text-slate-400 font-medium">{subtitle}</p>
           )}
         </div>
 
@@ -64,13 +74,13 @@ export const Card = ({
   return (
     <div
       className={cn(
-        'bg-white border border-gray-100 rounded-xl shadow-sm flex flex-col overflow-hidden',
+        'bg-white border border-slate-200/60 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex flex-col overflow-hidden',
         className
       )}
       {...props}
     >
       {(title || subtitle || Icon || action) && (
-        <div className={cn('px-5 py-4 border-b border-gray-50 flex items-center justify-between gap-4', headerClassName)}>
+        <div className={cn('px-5 py-4 border-b border-slate-100/80 flex items-center justify-between gap-4', headerClassName)}>
           <div className="flex items-center gap-3">
             {Icon && (
               <div className="w-9 h-9 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400 flex-shrink-0">

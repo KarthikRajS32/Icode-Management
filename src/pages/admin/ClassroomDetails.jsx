@@ -15,94 +15,58 @@ export const AdminClassroomDetails = () => {
   const navigate = useNavigate();
   const { classrooms, teachers, students, classroomStudents, addStudentDirect, updateStudentDirect, deleteStudentDirect } = useApp();
 
-  // Dialog states
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-
   const [editingStudent, setEditingStudent] = useState(null);
   const [deletingStudentId, setDeletingStudentId] = useState(null);
 
-  // Form states
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('Male');
   const [parentName, setParentName] = useState('');
   const [parentEmail, setParentEmail] = useState('');
-
   const [formErrors, setFormErrors] = useState({});
 
-  // Find target classroom
   const classroom = classrooms.find(c => c.id === id);
 
-  // If classroom doesn't exist, redirect or show error
   if (!classroom) {
     return (
-      <div className="flex flex-col items-center justify-center text-center gap-4 p-16 bg-white border rounded-3xl max-w-lg mx-auto mt-12 font-sans">
-        <School size={48} className="text-rose-500" />
-        <div>
-          <h2 className="font-extrabold text-lg text-gray-800">Classroom Not Found</h2>
-          <p className="text-xs text-gray-400 mt-1">
-            The classroom you're looking for doesn't exist or may have been deleted.
-          </p>
+      <div className="flex flex-col items-center justify-center text-center gap-4 p-16 bg-white border border-slate-200 rounded-xl shadow-sm max-w-lg mx-auto mt-12 font-sans">
+        <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center ring-1 ring-red-100">
+          <School size={28} className="text-red-500" />
         </div>
-        <Button variant="secondary" onClick={() => navigate('/admin/classrooms')} className="rounded-xl mt-2">
+        <div>
+          <h2 className="font-bold text-lg text-slate-800">Classroom Not Found</h2>
+          <p className="text-sm text-slate-400 mt-1">The classroom you're looking for doesn't exist or has been deleted.</p>
+        </div>
+        <Button variant="secondary" onClick={() => navigate('/admin/classrooms')} className="mt-8 ">
           Back to Classrooms
         </Button>
       </div>
     );
   }
 
-  // Gather details
   const classTeacher = teachers.find(t => t.id === classroom.teacherId);
   const classStudents = students.filter(s => classroomStudents.some(cs => cs.studentId === s.id && cs.classroomId === classroom.id));
   const seatOccupancy = classStudents.length;
   const seatPercentage = Math.min(100, Math.round((seatOccupancy / classroom.capacity) * 100));
+  const availableSlots = Math.max(0, classroom.capacity - seatOccupancy);
 
-  const resetForm = () => {
-    setName('');
-    setAge('');
-    setGender('Male');
-    setParentName('');
-    setParentEmail('');
-    setFormErrors({});
-    setEditingStudent(null);
-  };
+  const barColor = seatPercentage >= 100 ? 'bg-red-500' : seatPercentage >= 80 ? 'bg-amber-500' : 'bg-blue-600';
+  const pctColor = seatPercentage >= 100 ? 'text-red-600' : seatPercentage >= 80 ? 'text-amber-600' : 'text-blue-600';
 
-  const handleOpenCreate = () => {
-    resetForm();
-    setModalOpen(true);
-  };
+  const resetForm = () => { setName(''); setAge(''); setGender('Male'); setParentName(''); setParentEmail(''); setFormErrors({}); setEditingStudent(null); };
+  const handleOpenCreate = () => { resetForm(); setModalOpen(true); };
+  const handleOpenEdit = (student) => { resetForm(); setEditingStudent(student); setName(student.name); setAge(String(student.age)); setGender(student.gender); setParentName(student.parentName || ''); setParentEmail(student.parentEmail || ''); setModalOpen(true); };
+  const handleOpenDelete = (studentId) => { setDeletingStudentId(studentId); setConfirmOpen(true); };
 
-  const handleOpenEdit = (student) => {
-    resetForm();
-    setEditingStudent(student);
-    setName(student.name);
-    setAge(String(student.age));
-    setGender(student.gender);
-    setParentName(student.parentName || '');
-    setParentEmail(student.parentEmail || '');
-    setModalOpen(true);
-  };
-
-  const handleOpenDelete = (studentId) => {
-    setDeletingStudentId(studentId);
-    setConfirmOpen(true);
-  };
-
-  // Validations
   const validateForm = () => {
     const errors = {};
     if (!name.trim()) errors.name = 'Student name is required';
-    if (!age.trim() || isNaN(age) || parseInt(age, 10) < 3) {
-      errors.age = 'Please enter a valid age (3+)';
-    }
+    if (!age.trim() || isNaN(age) || parseInt(age, 10) < 3) errors.age = 'Enter a valid age (3+)';
     if (!parentName.trim()) errors.parentName = 'Parent Name is required';
-    if (!parentEmail.trim()) {
-      errors.parentEmail = 'Parent email is required';
-    } else if (!/\S+@\S+\.\S+/.test(parentEmail)) {
-      errors.parentEmail = 'Enter a valid email address';
-    }
-
+    if (!parentEmail.trim()) errors.parentEmail = 'Parent email is required';
+    else if (!/\S+@\S+\.\S+/.test(parentEmail)) errors.parentEmail = 'Enter a valid email address';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -110,291 +74,161 @@ export const AdminClassroomDetails = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
-    const formData = {
-      name,
-      age: parseInt(age, 10),
-      gender,
-      parentName,
-      parentEmail,
-      classroomId: classroom.id
-    };
-
-    if (editingStudent) {
-      updateStudentDirect(editingStudent.id, formData);
-    } else {
-      addStudentDirect(formData);
-    }
-
-    setModalOpen(false);
-    resetForm();
+    const formData = { name, age: parseInt(age, 10), gender, parentName, parentEmail, classroomId: classroom.id };
+    if (editingStudent) { updateStudentDirect(editingStudent.id, formData); } else { addStudentDirect(formData); }
+    setModalOpen(false); resetForm();
   };
 
   const handleConfirmDelete = () => {
-    if (deletingStudentId) {
-      deleteStudentDirect(deletingStudentId);
-      setConfirmOpen(false);
-      setDeletingStudentId(null);
-    }
+    if (deletingStudentId) { deleteStudentDirect(deletingStudentId); setConfirmOpen(false); setDeletingStudentId(null); }
   };
 
-  // Columns for student table
   const columns = [
     {
-      key: 'name',
-      label: 'Student',
+      key: 'name', label: 'Student',
       render: (row) => (
         <div className="flex items-center gap-3">
           <Avatar name={row.name} size="sm" />
-          <span className="font-bold text-gray-800 text-sm">{row.name}</span>
+          <span className="font-semibold text-slate-800 text-sm">{row.name}</span>
         </div>
       )
     },
+    { key: 'age', label: 'Age', render: (row) => <span className="text-sm text-slate-600">{row.age} yrs</span> },
     {
-      key: 'age',
-      label: 'Age',
-      render: (row) => (
-        <span className="text-xs font-semibold text-gray-500">
-          {row.age} Years Old
-        </span>
-      )
+      key: 'gender', label: 'Gender',
+      render: (row) => <Badge variant={row.gender === 'Male' ? 'blue' : row.gender === 'Female' ? 'rose' : 'slate'}>{row.gender}</Badge>
     },
     {
-      key: 'gender',
-      label: 'Gender',
-      render: (row) => (
-        <Badge variant={row.gender === 'Male' ? 'blue' : row.gender === 'Female' ? 'rose' : 'slate'} className="text-[9px] px-2 py-0.5 border-none">
-          {row.gender}
-        </Badge>
-      )
-    },
-    {
-      key: 'parentName',
-      label: 'Parent',
+      key: 'parentName', label: 'Parent / Guardian',
       render: (row) => (
         <div className="flex flex-col gap-0.5">
-          <div className="flex items-center gap-2">
-            <User size={14} className="text-gray-400" />
-            <span className="text-xs font-semibold text-gray-600">
-              {row.parentName || 'N/A'}
-            </span>
+          <div className="flex items-center gap-1.5">
+            <User size={12} className="text-slate-400" />
+            <span className="text-sm font-semibold text-slate-700">{row.parentName || 'N/A'}</span>
           </div>
-          {row.parentEmail && (
-            <span className="text-[10px] text-gray-400 pl-5 leading-none">
-              {row.parentEmail}
-            </span>
-          )}
+          {row.parentEmail && <span className="text-xs text-slate-400 pl-4">{row.parentEmail}</span>}
         </div>
       )
     },
     {
-      key: 'actions',
-      label: 'Actions',
+      key: 'actions', label: 'Actions',
       render: (row) => (
         <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleOpenEdit(row)}
-            className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-50 rounded-xl"
-          >
-            <Edit2 size={14} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleOpenDelete(row.id)}
-            className="p-2 text-gray-400 hover:text-rose-500 hover:bg-gray-50 rounded-xl"
-          >
-            <Trash2 size={14} />
-          </Button>
+          <Button variant="ghost" size="sm" onClick={() => handleOpenEdit(row)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 size={13} /></Button>
+          <Button variant="ghost" size="sm" onClick={() => handleOpenDelete(row.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={13} /></Button>
         </div>
       )
     }
   ];
 
   return (
-    <div className="flex flex-col gap-6 w-full font-sans">
-      {/* Breadcrumb Header */}
-      <div className="flex flex-col gap-2">
-        <Link
-          to="/admin/classrooms"
-          className="flex items-center gap-1 text-xs font-bold text-gray-400 hover:text-blue-600 w-max transition-colors"
-        >
-          <ArrowLeft size={14} /> Back to Classrooms
+    <div className="flex flex-col gap-6 w-full font-sans animate-fade-in">
+
+      {/* Breadcrumb + header */}
+      <div className="flex flex-col gap-3">
+        <Link to="/admin/classrooms" className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-600 transition-colors w-max">
+          <ArrowLeft size={13} /> Back to Classrooms
         </Link>
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
-          <div className="flex flex-col gap-0.5">
-            <h1 className="text-xl md:text-xl font-black text-gray-800 tracking-tight">
-              {classroom.name} — Section {classroom.section}
-            </h1>
-            <p className="text-sm text-gray-600 font-medium">
-              Teacher: <b className="text-gray-600 font-bold">{classTeacher ? classTeacher.name : 'No teacher assigned'}</b>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-black text-slate-800 tracking-tight">{classroom.name} — Section {classroom.section}</h1>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Instructor: <span className="font-semibold text-slate-700">{classTeacher ? classTeacher.name : 'No teacher assigned'}</span>
             </p>
           </div>
-
-          <Button
-            variant="primary"
-            onClick={handleOpenCreate}
-            disabled={seatOccupancy >= classroom.capacity}
-            className="rounded-xl flex items-center justify-center gap-2 font-bold shadow-sm"
-          >
-            <Plus size={16} /> Enroll Student
+          <Button variant="primary" onClick={handleOpenCreate} disabled={seatOccupancy >= classroom.capacity} className="flex items-center gap-2 font-semibold">
+            <Plus size={14} /> Enroll Student
           </Button>
         </div>
       </div>
 
-      {/* Classroom KPIs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex items-center gap-4">
-          <div className="p-3.5 bg-blue-50 text-blue-500 rounded-xl">
-            <Users size={20} />
+      {/* KPI cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center ring-1 ring-blue-100 flex-shrink-0">
+            <Users size={18} className="text-blue-600" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 font-semibold uppercase leading-none">Students Enrolled</span>
-            <span className="text-xl font-black text-gray-800 mt-1 leading-none">{seatOccupancy} Students</span>
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex items-center gap-4">
-          <div className="p-3.5 bg-emerald-50 text-emerald-500 rounded-xl">
-            <School size={20} />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 font-semibold uppercase leading-none">Seat Capacity</span>
-            <span className="text-xl font-black text-gray-800 mt-1 leading-none">{classroom.capacity} Seats</span>
+          <div>
+            <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Enrolled</p>
+            <p className="text-2xl font-black text-slate-800 leading-none mt-1">{seatOccupancy}</p>
+            <p className="text-xs text-slate-400 mt-0.5">of {classroom.capacity} seats</p>
           </div>
         </div>
 
-        {/* Load progression widget */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs flex flex-col justify-center gap-2">
-          <div className="flex items-center justify-between text-[10px] font-bold">
-            <span className="text-gray-400 uppercase">Occupancy</span>
-            <span className={`${seatPercentage > 90 ? 'text-rose-500' : seatPercentage > 70 ? 'text-orange-500' : 'text-blue-500'}`}>
-              {seatPercentage}%
-            </span>
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-emerald-50 flex items-center justify-center ring-1 ring-emerald-100 flex-shrink-0">
+            <School size={18} className="text-emerald-600" />
           </div>
-          <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              style={{ width: `${seatPercentage}%` }}
-              className={`h-full rounded-full transition-all duration-300 ${
-                seatPercentage > 90
-                  ? 'bg-rose-600'
-                  : seatPercentage > 70
-                  ? 'bg-amber-500'
-                  : 'bg-blue-600'
-              }`}
-            />
+          <div>
+            <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">Available Slots</p>
+            <p className="text-2xl font-black text-slate-800 leading-none mt-1">{availableSlots}</p>
+            <p className="text-xs text-slate-400 mt-0.5">remaining capacity</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-center gap-3">
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="text-slate-500">Seat Occupancy</span>
+            <span className={`font-black tabular-nums ${pctColor}`}>{seatPercentage}%</span>
+          </div>
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div style={{ width: `${seatPercentage}%` }} className={`h-full rounded-full transition-all duration-500 ${barColor}`} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Badge variant={seatPercentage >= 100 ? 'red' : seatPercentage >= 80 ? 'amber' : 'emerald'} className="text-[10px]">
+              {seatPercentage >= 100 ? 'Full' : seatPercentage >= 80 ? 'Near Capacity' : 'Available'}
+            </Badge>
+            <span className="text-xs text-slate-400 font-medium">{seatOccupancy}/{classroom.capacity}</span>
           </div>
         </div>
       </div>
 
-      {/* Main Student Roster list */}
-      <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs mt-2">
-        <Table
-          columns={columns}
-          data={classStudents}
-          searchPlaceholder="Search students by name..."
-          searchKey="name"
-          emptyMessage="No students enrolled in this classroom yet."
-          pageSize={6}
-        />
+      {/* Roster table */}
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <p className="font-bold text-slate-800 text-sm">Classroom Roster</p>
+            <p className="text-xs text-slate-500 mt-0.5">View and manage students enrolled in this section.</p>
+          </div>
+          <Badge variant="blue">{classStudents.length} Students</Badge>
+        </div>
+        <div className="p-5">
+          <Table columns={columns} data={classStudents} searchPlaceholder="Search roster by name..." searchKey="name" emptyMessage="No students enrolled in this classroom yet." pageSize={6} />
+        </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* STUDENT ENROLLMENT / EDIT DIALOG */}
-      {/* ========================================================================= */}
-      <Dialog
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={editingStudent ? `Edit Student: ${editingStudent.name}` : 'Enroll Student'}
-        size="md"
-      >
+      {/* Enroll/Edit modal */}
+      <Dialog isOpen={modalOpen} onClose={() => setModalOpen(false)}
+        title={editingStudent ? `Edit Student — ${editingStudent.name}` : 'Enroll Student'} size="md">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            label="Student's Full Name"
-            placeholder="e.g. John Miller"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            error={formErrors.name}
-          />
-
+          <Input label="Student's Full Name" placeholder="e.g. John Miller" value={name} onChange={e => setName(e.target.value)} error={formErrors.name} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Age"
-              placeholder="e.g. 11"
-              type="number"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              error={formErrors.age}
-            />
-
-            {/* Gender selector */}
+            <Input label="Age" placeholder="e.g. 11" type="number" value={age} onChange={e => setAge(e.target.value)} error={formErrors.age} />
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 tracking-wide">
-                Gender
-              </label>
+              <label className="text-xs font-semibold text-slate-600 tracking-wide">Gender</label>
               <div className="flex gap-2">
-                {['Male', 'Female'].map((g) => (
-                  <button
-                    key={g}
-                    type="button"
-                    onClick={() => setGender(g)}
-                    className={`flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                      gender === g
-                        ? 'border-blue-500 bg-blue-50 text-blue-600'
-                        : 'border-gray-200 hover:bg-gray-50'
-                    }`}
-                  >
+                {['Male', 'Female'].map(g => (
+                  <button key={g} type="button" onClick={() => setGender(g)}
+                    className={`flex-1 py-2.5 rounded-lg border text-sm font-semibold transition-all cursor-pointer ${gender === g ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 hover:bg-slate-50 text-slate-500'}`}>
                     {g}
                   </button>
                 ))}
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Parent / Guardian Name"
-              placeholder="e.g. Grace Miller"
-              value={parentName}
-              onChange={(e) => setParentName(e.target.value)}
-              error={formErrors.parentName}
-            />
-
-            <Input
-              label="Parent Email Address"
-              type="email"
-              placeholder="e.g. grace.miller@gmail.com"
-              value={parentEmail}
-              onChange={(e) => setParentEmail(e.target.value)}
-              error={formErrors.parentEmail}
-            />
+            <Input label="Parent / Guardian Name" placeholder="e.g. Grace Miller" value={parentName} onChange={e => setParentName(e.target.value)} error={formErrors.parentName} />
+            <Input label="Parent Email Address" type="email" placeholder="e.g. grace.miller@gmail.com" value={parentEmail} onChange={e => setParentEmail(e.target.value)} error={formErrors.parentEmail} />
           </div>
-
-          <div className="flex items-center gap-3 justify-end mt-4">
-            <Button variant="secondary" onClick={() => setModalOpen(false)} className="rounded-xl">
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" className="rounded-xl font-bold">
-              {editingStudent ? 'Save Changes' : 'Enroll Student'}
-            </Button>
+          <div className="flex items-center gap-3 justify-end pt-4 border-t border-slate-100">
+            <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary">{editingStudent ? 'Save Changes' : 'Enroll Student'}</Button>
           </div>
         </form>
       </Dialog>
 
-      {/* ========================================================================= */}
-      {/* DE-ENROLL CONFIRMATION */}
-      {/* ========================================================================= */}
-      <ConfirmDialog
-        isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Remove Student?"
-        message="Are you sure you want to remove this student? Their activity records will also be permanently deleted."
-        confirmText="Remove"
-      />
+      <ConfirmDialog isOpen={confirmOpen} onClose={() => setConfirmOpen(false)} onConfirm={handleConfirmDelete}
+        title="Remove Student?" message="Are you sure you want to remove this student? All activity records will also be deleted." confirmText="Remove" />
     </div>
   );
 };

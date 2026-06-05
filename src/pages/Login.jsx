@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react';
+import { Mail, Lock, LogIn } from 'lucide-react';
 
 export const Login = () => {
   const { login } = useApp();
@@ -30,47 +30,39 @@ export const Login = () => {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
-    setTimeout(() => {
-      const res = login(email, password);
+    setTimeout(async () => {
+      const res = await login(email, password);
       setLoading(false);
-      if (res.success) navigate(roleRedirects[res.user.role] || '/');
+      if (res && res.success) navigate(roleRedirects[res.user.role] || '/');
     }, 400);
   };
 
   const handleQuickLogin = (emailPreset, passPreset) => {
     setErrors({});
     setLoading(true);
-    setTimeout(() => {
-      const res = login(emailPreset, passPreset);
+    setTimeout(async () => {
+      const res = await login(emailPreset, passPreset);
       setLoading(false);
-      if (res.success) navigate(roleRedirects[res.user.role] || '/');
+      if (res && res.success) navigate(roleRedirects[res.user.role] || '/');
     }, 300);
   };
 
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center">
-        <h2 className="text-lg font-bold text-gray-900">Sign in</h2>
-        <p className="text-sm text-gray-500 mt-1">Enter your credentials to access your portal</p>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight">Welcome back</h2>
+        <p className="text-sm text-slate-500 mt-1.5">Sign in to access your portal</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          label="Email Address" type="email" icon={Mail}
-          placeholder="e.g. admin@gmail.com" value={email}
-          onChange={(e) => setEmail(e.target.value)} error={errors.email} autoFocus
-        />
-        <Input
-          label="Password" type="password" icon={Lock}
-          placeholder="••••••••" value={password}
-          onChange={(e) => setPassword(e.target.value)} error={errors.password}
-        />
-        <Button type="submit" variant="primary" loading={loading} className="w-full mt-1 gap-2">
-          <LogIn size={16} /> Sign In
+        <Input label="Email Address" type="email" icon={Mail} placeholder="your@email.com"
+          value={email} onChange={e => setEmail(e.target.value)} error={errors.email} autoFocus />
+        <Input label="Password" type="password" icon={Lock} placeholder="••••••••"
+          value={password} onChange={e => setPassword(e.target.value)} error={errors.password} />
+        <Button type="submit" variant="primary" loading={loading} className="w-full mt-1 font-semibold">
+          <LogIn size={15} /> Sign In
         </Button>
       </form>
-
-      
     </div>
   );
 };

@@ -1,221 +1,152 @@
+import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Card } from '../../components/Card';
-import { Badge } from '../../components/Badge';
 import { Button } from '../../components/Button';
+import { Avatar } from '../../components/Avatar';
 import { formatDate } from '../../utils/formatDate';
-import {
-  School,
-  Users,
-  ClipboardCheck,
-  Activity,
-  ArrowRight,
-  Plus
-} from 'lucide-react';
+import { School, Users, ClipboardCheck, Activity, ArrowRight, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const TeacherDashboard = () => {
   const { currentUser, classrooms, students, classroomStudents, activities } = useApp();
   const navigate = useNavigate();
 
-  // 1. Calculate assigned classrooms
   const teacherId = currentUser?.associatedId || 't-1';
   const assignedClassrooms = classrooms.filter(c => c.teacherId === teacherId);
   const assignedClassroomIds = assignedClassrooms.map(c => c.id);
-
-  // 2. Calculate students in these classrooms using classroomStudents join state
   const teacherStudentIds = classroomStudents.filter(cs => assignedClassroomIds.includes(cs.classroomId)).map(cs => cs.studentId);
-  const teacherStudents = students.filter(s => teacherStudentIds.includes(s.id));
-  const totalStudents = teacherStudents.length;
+  const totalStudents = students.filter(s => teacherStudentIds.includes(s.id)).length;
 
-  // 3. Today's activities logged by this teacher
   const todayStr = new Date().toISOString().split('T')[0];
   const teacherActivities = activities.filter(act => act.teacherId === teacherId);
   const todaysActivities = teacherActivities.filter(act => act.date === todayStr).length;
 
-  // 4. Custom SVG Analytics: Activity types logged by this teacher
   const mathAct = teacherActivities.filter(act => act.photoPreset === 'math').length;
   const scienceAct = teacherActivities.filter(act => act.photoPreset === 'science').length;
   const artAct = teacherActivities.filter(act => act.photoPreset === 'art').length;
   const readingAct = teacherActivities.filter(act => act.photoPreset === 'reading').length;
-  
   const totalActivities = Math.max(1, teacherActivities.length);
-  const mathPct = Math.round((mathAct / totalActivities) * 100);
-  const sciencePct = Math.round((scienceAct / totalActivities) * 100);
-  const artPct = Math.round((artAct / totalActivities) * 100);
-  const readingPct = Math.round((readingAct / totalActivities) * 100);
+
+  const subjectBreakdown = [
+    { label: 'Mathematics & Logic', count: mathAct, pct: Math.round((mathAct / totalActivities) * 100), color: 'bg-blue-600' },
+    { label: 'Science & Experiments', count: scienceAct, pct: Math.round((scienceAct / totalActivities) * 100), color: 'bg-emerald-600' },
+    { label: 'Creative Expression & Art', count: artAct, pct: Math.round((artAct / totalActivities) * 100), color: 'bg-pink-600' },
+    { label: 'Reading & Literacy', count: readingAct, pct: Math.round((readingAct / totalActivities) * 100), color: 'bg-amber-500' },
+  ];
 
   return (
-    <div className="flex flex-col gap-8 font-sans w-full">
-      
-      {/* Dynamic Welcome Jumbotron */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-900 border border-slate-800 p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex flex-col gap-2 relative z-10 text-center md:text-left">
-          <Badge variant="emerald" className="text-[9px] w-max mx-auto md:mx-0">
-            Active
-          </Badge>
-          <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Welcome back, {currentUser?.name || 'Teacher'}!
-          </h1>
-          <p className="text-slate-400 text-xs md:text-sm max-w-md">
-            Review your assigned classrooms, monitor student progress, and log today's activities.
-          </p>
-        </div>
+    <div className="flex flex-col gap-6 w-full font-sans animate-fade-in">
 
-        <Button
-          variant="glass"
-          onClick={() => navigate('/teacher/activities')}
-          className="relative z-10 rounded-xl flex items-center gap-2 font-bold"
-        >
-          <Plus size={16} /> Log Activity
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-black text-slate-800 tracking-tight">Faculty Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Monitor your classrooms and record student learning outcomes.</p>
+        </div>
+        <Button variant="primary" onClick={() => navigate('/teacher/activities')} className="flex items-center gap-1.5">
+          <Plus size={14} /> Log Activity
         </Button>
       </div>
 
-      {/* KPI stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <Card
-          title={String(assignedClassrooms.length)}
-          subtitle="My Classrooms"
-          icon={School}
-          glow
-          glowColor="emerald"
-          className="cursor-pointer"
-          onClick={() => navigate('/teacher/classrooms')}
-        >
-          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
-            <span>View Classrooms</span>
-            <ArrowRight size={14} className="text-emerald-500" />
-          </div>
-        </Card>
-
-        <Card
-          title={String(totalStudents)}
-          subtitle="Students in My Classes"
-          icon={Users}
-          glow
-          glowColor="blue"
-          className="cursor-pointer"
-          onClick={() => navigate('/teacher/classrooms')}
-        >
-          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
-            <span>View Students</span>
-            <ArrowRight size={14} className="text-blue-500" />
-          </div>
-        </Card>
-
-        <Card
-          title={String(todaysActivities)}
-          subtitle="Activities Logged Today"
-          icon={ClipboardCheck}
-          glow
-          glowColor="rose"
-          className="cursor-pointer"
-          onClick={() => navigate('/teacher/activities')}
-        >
-          <div className="flex items-center justify-between text-xs text-gray-400 font-semibold mt-4">
-            <span>Log Activity</span>
-            <ArrowRight size={14} className="text-rose-500" />
-          </div>
-        </Card>
-      </div>
-
-      {/* Analytics Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Custom Progress bar listing for logged activities */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs lg:col-span-2 flex flex-col justify-between">
-          <div className="flex flex-col gap-0.5 mb-6">
-            <h3 className="font-extrabold text-gray-800 text-sm">Activity Category Breakdown</h3>
-            <p className="text-[10px] text-gray-400">Distribution of activity types you have logged across all students.</p>
-          </div>
-
-          <div className="flex flex-col gap-4.5 flex-grow justify-center">
-            {/* Math */}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-gray-600">Mathematics & Logic</span>
-                <span>{mathAct} {mathAct === 1 ? 'log' : 'logs'} ({mathPct}%)</span>
-              </div>
-              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
-                <div style={{ width: `${mathPct}%` }} className="h-full rounded-full bg-amber-500 shadow-sm" />
-              </div>
+      {/* KPI cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div onClick={() => navigate('/teacher/classrooms')}
+          className="bg-white border border-slate-200 rounded-xl p-5 py-8 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">My Classrooms</span>
+              <p className="text-3xl font-black text-slate-800 mt-1.5">{assignedClassrooms.length}</p>
             </div>
-
-            {/* Science */}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-gray-600">Science & Lab Experiments</span>
-                <span>{scienceAct} {scienceAct === 1 ? 'log' : 'logs'} ({sciencePct}%)</span>
-              </div>
-              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
-                <div style={{ width: `${sciencePct}%` }} className="h-full rounded-full bg-emerald-600 shadow-sm" />
-              </div>
-            </div>
-
-            {/* Art */}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-gray-600">Art & Creative Expression</span>
-                <span>{artAct} {artAct === 1 ? 'log' : 'logs'} ({artPct}%)</span>
-              </div>
-              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
-                <div style={{ width: `${artPct}%` }} className="h-full rounded-full bg-pink-500 shadow-sm" />
-              </div>
-            </div>
-
-            {/* Reading */}
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-gray-600">Reading & Literacy</span>
-                <span>{readingAct} {readingAct === 1 ? 'log' : 'logs'} ({readingPct}%)</span>
-              </div>
-              <div className="w-full h-2.5 bg-gray-50 rounded-full overflow-hidden">
-                <div style={{ width: `${readingPct}%` }} className="h-full rounded-full bg-blue-600 shadow-sm" />
-              </div>
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center ring-1 ring-inset ring-blue-100">
+              <School size={18} />
             </div>
           </div>
         </div>
 
-        {/* Recent Teacher logs summary timeline */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
-          <div className="flex flex-col gap-1 mb-4">
-            <h3 className="font-extrabold text-gray-800 text-sm">Recent Activity Logs</h3>
-            <p className="text-[11px] text-gray-400">Your most recently submitted student updates.</p>
+        <div onClick={() => navigate('/teacher/classrooms')}
+          className="bg-white border border-slate-200 rounded-xl p-5 py-8 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Students</span>
+              <p className="text-3xl font-black text-slate-800 mt-1.5">{totalStudents}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center ring-1 ring-inset ring-emerald-100">
+              <Users size={18} />
+            </div>
           </div>
+        </div>
 
-          <div className="flex-grow overflow-y-auto flex flex-col gap-3.5 max-h-[220px]">
+        <div onClick={() => navigate('/teacher/activities')}
+          className="bg-white border border-slate-200 rounded-xl p-5 py-8 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 cursor-pointer">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Logs</span>
+              <p className="text-3xl font-black text-slate-800 mt-1.5">{todaysActivities}</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center ring-1 ring-inset ring-amber-100">
+              <ClipboardCheck size={18} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* Activity breakdown */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm lg:col-span-2 flex flex-col overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100">
+            <p className="font-bold text-slate-800 text-sm">Activity Breakdown</p>
+            <p className="text-xs text-slate-500 mt-0.5">Distribution of activity logs recorded across subjects.</p>
+          </div>
+          <div className="p-5 flex flex-col gap-5">
+            {subjectBreakdown.map(item => (
+              <div key={item.label} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700">{item.label}</span>
+                  <span className="font-bold text-slate-500 tabular-nums">{item.count} <span className="text-slate-400 font-medium">({item.pct}%)</span></span>
+                </div>
+                <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div style={{ width: `${item.pct}%` }} className={`h-full rounded-full ${item.color} transition-all duration-700`} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent logs */}
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-100">
+            <p className="font-bold text-slate-800 text-sm">Recent Activity Logs</p>
+            <p className="text-xs text-slate-500 mt-0.5">Your most recently submitted updates.</p>
+          </div>
+          <div className="flex-grow overflow-y-auto flex flex-col gap-2 p-4 max-h-64">
             {teacherActivities.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center gap-2 h-full text-gray-400 py-6">
-                <Activity size={22} className="text-gray-300" />
-                <p className="text-[10px] font-bold">No activities yet</p>
-                <p className="text-[9px] text-gray-400 max-w-[150px] leading-relaxed">
-                  Log student activities to see them appear here.
-                </p>
+              <div className="flex flex-col items-center justify-center text-center gap-2 h-full py-8 text-slate-400">
+                <Activity size={20} className="text-slate-300" />
+                <p className="text-xs font-medium text-slate-400">No activities logged yet.</p>
               </div>
             ) : (
-              teacherActivities.slice(0, 3).map((act) => {
+              teacherActivities.slice(0, 4).map(act => {
                 const student = students.find(s => s.id === act.studentId);
                 return (
-                  <div
-                    key={act.id}
-                    className="p-3 bg-gray-50 border border-gray-100 rounded-xl flex flex-col gap-1"
-                  >
-                    <div className="flex items-center justify-between text-[8px] font-bold">
-                      <span className="text-gray-400">{formatDate(act.date)}</span>
-                      <span className="text-emerald-600 font-bold">{student?.name || 'N/A'}</span>
+                  <div key={act.id} onClick={() => navigate('/teacher/activities')}
+                    className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-1.5 hover:border-slate-300 hover:bg-white transition-all cursor-pointer">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-medium text-slate-400">{formatDate(act.date)}</span>
+                      <span className="text-[10px] font-bold text-blue-600">{student?.name || 'N/A'}</span>
                     </div>
-                    <p className="text-[10px] font-extrabold text-gray-700 leading-tight">
-                      {act.title}
-                    </p>
-                    <p className="text-[9px] text-gray-400 line-clamp-1 leading-normal">
-                      {act.description}
-                    </p>
+                    <p className="text-xs font-bold text-slate-700 truncate">{act.title}</p>
+                    <p className="text-[11px] text-slate-500 line-clamp-1 leading-relaxed">{act.description}</p>
                   </div>
                 );
               })
             )}
+          </div>
+          <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs text-slate-400 font-medium">{teacherActivities.length} total logs</span>
+            <button onClick={() => navigate('/teacher/activities')} className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer">
+              View All <ArrowRight size={12} />
+            </button>
           </div>
         </div>
       </div>

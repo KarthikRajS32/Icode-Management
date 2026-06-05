@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '../utils/cn';
 import { X } from 'lucide-react';
 
@@ -13,36 +14,46 @@ export const Dialog = ({
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : 'unset';
-    return () => { document.body.style.overflow = 'unset'; };
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('dialog-open');
+    } else {
+      document.body.style.overflow = 'unset';
+      document.body.classList.remove('dialog-open');
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.body.classList.remove('dialog-open');
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
 
   const sizes = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
 
-  return (
+  return createPortal(
     <div
       onClick={(e) => closeOnOverlayClick && e.target === e.currentTarget && onClose()}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 animate-fade-in"
     >
       <div className={cn(
-        'w-full bg-white rounded-2xl shadow-xl border border-gray-100 flex flex-col max-h-[90vh] overflow-hidden',
+        'w-full bg-white rounded-xl shadow-2xl border border-slate-200/60 flex flex-col max-h-[92vh] overflow-hidden animate-scale-up',
         sizes[size], className
       )}>
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4 flex-shrink-0">
-          <h2 className="font-semibold text-gray-900 text-base">{title}</h2>
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between gap-4 flex-shrink-0 bg-slate-50/50">
+          <h2 className="font-bold text-slate-800 text-base tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-200 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
-        <div className="p-6 overflow-y-auto flex-grow text-gray-700">
+        <div className="p-6 overflow-y-auto flex-grow text-slate-700">
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

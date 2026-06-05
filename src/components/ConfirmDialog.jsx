@@ -11,12 +11,14 @@ export const ConfirmDialog = ({
 }) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title={title} size="sm" closeOnOverlayClick={!loading}>
-      <div className="flex flex-col items-center text-center gap-4 py-2">
-        <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-          <AlertTriangle size={22} className="text-red-500" />
+      <div className="flex flex-col gap-5 py-1">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0 mt-0.5 ring-1 ring-red-100">
+            <AlertTriangle size={20} className="text-red-500" />
+          </div>
+          <p className="text-sm text-slate-600 leading-relaxed pt-1.5">{message}</p>
         </div>
-        <p className="text-sm text-gray-500 leading-relaxed">{message}</p>
-        <div className="flex items-center gap-3 w-full mt-2">
+        <div className="flex items-center gap-3 pt-1 border-t border-slate-100">
           <Button variant="secondary" onClick={onClose} disabled={loading} className="flex-1">
             {cancelText}
           </Button>

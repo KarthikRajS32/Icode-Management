@@ -17,7 +17,7 @@ export const Dropdown = ({ trigger, children, align = 'right', className = '' })
       {isOpen && (
         <div
           className={cn(
-            'absolute mt-2 w-52 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden z-40',
+            'absolute mt-2 w-52 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden z-40 animate-dropdown',
             align === 'right' ? 'right-0' : 'left-0',
             className
           )}
